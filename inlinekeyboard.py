@@ -12,6 +12,7 @@ from subprocess import check_output
 from pprint import pprint
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from urllib.request import Request, urlopen
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -317,7 +318,9 @@ def getstatus(miner, status=True):
     return respi
 
 def json_url_reader(url):
-    f = urllib.request.urlopen(url)
+    # added user agent so that coindesk is not blocking as rogue request
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    f = urllib.request.urlopen(req)
     r = f.read().decode('utf-8')
     return json.dumps(r)
 
