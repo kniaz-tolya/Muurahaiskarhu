@@ -1,9 +1,8 @@
 {
     "telegram":{
-            "token":"264567300:AAG90RHn3HQRy3nYFPY604cf0yS4DVCdnxo"
+            "token":"YOUR_TELEGRAM_API_TOKEN_FROM_BOTFATHER"
         },
     "quote":{
             "file":"quotes.txt"
         }
 }
-
