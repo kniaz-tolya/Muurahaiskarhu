@@ -23,22 +23,31 @@ HOST = 'localhost' # Host that the server runs
 BUFF = 4096 # Number of bytes to receive from the server socket
 
 # Telegram bot token
-TELEGRAM_BOT_TOKEN = "504896102:AAHBJdpMeiIFw2iuxlN6NqkrkLBsFiDm_xY"
+TELEGRAM_BOT_TOKEN = ""
 
 # SlushPool settings
-SP_API_TOKEN = "1778195-e64353f7a18f2483d3699100820e3840" # full access token
-SP_API_TOKEN_RO = "h4jcULU5xhD9FIoD" # read only token
-SP_PROFILE_URL = 'https://slushpool.com/accounts/profile/json/1778195-e64353f7a18f2483d3699100820e3840'
-SP_STATS_URL = 'https://slushpool.com/stats/json/1778195-e64353f7a18f2483d3699100820e3840'
+SP_API_TOKEN = "" # full access token
+SP_API_TOKEN_RO = "" # read only token
+SP_PROFILE_URL = 'https://slushpool.com/accounts/profile/json/' + SP_API_TOKEN
+SP_STATS_URL = 'https://slushpool.com/stats/json/' + SP_API_TOKEN
+
+# SiaMining API
+SIA_API_MARKET = "https://siamining.com/api/v1/market"
+SIA_API_NETWORK = "https://siamining.com/api/v1/network"
+SIA_API_POOLINFO = "https://siamining.com/api/v1/pool"
+SIA_ACCOUNT = ""
+SIA_API_SUMMARY = "https://siamining.com/api/v1/addresses/" + SIA_ACCOUNT + "/summary"
+SIA_API_PAYOUTS = "https://siamining.com/api/v1/addresses/" + SIA_ACCOUNT + "/payouts"
+SIA_API_WORKERS = "https://siamining.com/api/v1/addresses/" + SIA_ACCOUNT + "/workers"
 
 # CoinDesk API to get EUR/BTC/USD daily values () - no auth needed <3
 COINDESK_API_URL = 'https://api.coindesk.com/v1/bpi/currentprice.json'
 
 # Ant miners as an array - might be a better way but this was the easiest :)
 # TODO: key-value dict with name + ip
-miners = ["192.168.2.11", "192.168.2.13", "192.168.2.14", "192.168.2.15",
+miners = ["192.168.2.11", "192.168.2.12", "192.168.2.13", "192.168.2.14", "192.168.2.15",
             "192.168.2.16", "192.168.2.17", "192.168.2.18", "192.168.2.19", "192.168.2.20",
-            "192.168.2.21", "192.168.2.22"]
+            "192.168.2.21", "192.168.2.22", "192.168.1.219"]
 
 # global variables
 cd_eur = ""
@@ -328,6 +337,11 @@ def maini():
     #response = getstatus("192.168.2.11")
     getstatus("192.168.2.11")
 
+def init_config():
+    """ Initialize configruation (e.g. Telegram bot token) from config.json """
+    with open('config.json') as json_cfg_file:
+        config = json.load(json_cfg_file)
+    return config
 
 def main():
     # Create the Updater and pass it your bot's token.

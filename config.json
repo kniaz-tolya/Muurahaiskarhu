@@ -1,0 +1,9 @@
+{
+    "telegram":{
+            "token":"264567300:AAG90RHn3HQRy3nYFPY604cf0yS4DVCdnxo"
+        },
+    "quote":{
+            "file":"quotes.txt"
+        }
+}
+
