@@ -4,6 +4,8 @@
 import json # manipulation of json
 import socket # for server connection
 import sys
+import time
+import datetime
 import logging
 import urllib.request
 import urllib.parse
@@ -46,8 +48,8 @@ COINDESK_API_URL = 'https://api.coindesk.com/v1/bpi/currentprice.json'
 # Ant miners as an array - might be a better way but this was the easiest :)
 # TODO: key-value dict with name + ip
 miners = ["192.168.2.11", "192.168.2.12", "192.168.2.13", "192.168.2.14", "192.168.2.15",
-            "192.168.2.16", "192.168.2.17", "192.168.2.18", "192.168.2.19", "192.168.2.20",
-            "192.168.2.21", "192.168.2.22", "192.168.1.219"]
+          "192.168.2.16", "192.168.2.17", "192.168.2.18", "192.168.2.19", "192.168.2.20",
+          "192.168.2.21", "192.168.2.22", "192.168.1.219"]
 
 # global variables
 cd_eur = ""
@@ -271,51 +273,51 @@ def getstatus(miner, status=True):
             response = response.split(',')
             respi = respi + '\n' + miner + ': '
             for key in response:
-                    key = key.split('=')
-                    if key[0]=='temp2_6':
-                        respi = respi + "*" + key[1]
-                        if int(key[1]) > hightemp:
-                            hightemp = int(key[1])
-                            highminer = miner
-                    elif key[0]=='temp2_7':
-                        respi = respi + "/" + key[1]
-                        if int(key[1]) > hightemp:
-                            hightemp = int(key[1])
-                            highminer = miner
-                    elif key[0]=='temp2_8':
-                        respi = respi + "/" + key[1] + "*℃"
-                        if int(key[1]) > hightemp:
-                            hightemp = int(key[1])
-                            higminer = miner
+                key = key.split('=')
+                if key[0]=='temp2_6':
+                    respi = respi + "*" + key[1]
+                    if int(key[1]) > hightemp:
+                        hightemp = int(key[1])
+                        highminer = miner
+                elif key[0]=='temp2_7':
+                    respi = respi + "/" + key[1]
+                    if int(key[1]) > hightemp:
+                        hightemp = int(key[1])
+                        highminer = miner
+                elif key[0]=='temp2_8':
+                    respi = respi + "/" + key[1] + "*℃"
+                    if int(key[1]) > hightemp:
+                        hightemp = int(key[1])
+                        higminer = miner
             sock.close() # close the socket connection
     else:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-            print('Connecting to socket on miner:',miner)
-            sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
-            dumped_data="stats|0".encode('utf-8')
-            sock.send(dumped_data) # Send the dumped data to the server
-            response = warren(sock)
-            response = response.split(',')
-            respi = miner + ': '
-            for key in response:
-                    key = key.split('=')
-                    print(key)
-                    if key[0]=='temp2_6':
-                        respi = respi + "Chip1: *" + key[1] + "*℃"
-                        if int(key[1]) > hightemp:
-                            hightemp = int(key[1])
-                            highminer = miner
-                    elif key[0]=='temp2_7':
-                        respi = respi + ", Chip2: *" + key[1] + "*℃"
-                        if int(key[1]) > hightemp:
-                            hightemp = int(key[1])
-                            highminer = miner
-                    elif key[0]=='temp2_8':
-                        respi = respi + ", Chip3: *" + key[1] + "*℃"
-                        if int(key[1]) > hightemp:
-                            hightemp = int(key[1])
-                            highminer = miner
-            sock.close() # close the socket connection
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
+        print('Connecting to socket on miner:', miner)
+        sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
+        dumped_data = "stats|0".encode('utf-8')
+        sock.send(dumped_data) # Send the dumped data to the server
+        response = warren(sock)
+        response = response.split(',')
+        respi = miner + ': '
+        for key in response:
+            key = key.split('=')
+            print(key)
+            if key[0] == 'temp2_6':
+                respi = respi + "Chip1: *" + key[1] + "*℃"
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_7':
+                respi = respi + ", Chip2: *" + key[1] + "*℃"
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_8':
+                respi = respi + ", Chip3: *" + key[1] + "*℃"
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+        sock.close() # close the socket connection
             #print(respi)
     if hightemp > 105:
         respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >105℃ 🌶️" # >105
@@ -333,9 +335,18 @@ def json_url_reader(url):
     r = f.read().decode('utf-8')
     return json.dumps(r)
 
+def log_entry(choice):
+    """ Log entry to screen with timestamp, todo: file """
+    time_stamp = time.time()
+    formatted_time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+    print("[" + formatted_time_stamp + "] " + choice)
+
+
 def maini():
+    """ Debug function to override mine for development """
     #response = getstatus("192.168.2.11")
     getstatus("192.168.2.11")
+
 
 def init_config():
     """ Initialize configruation (e.g. Telegram bot token) from config.json """
@@ -343,9 +354,36 @@ def init_config():
         config = json.load(json_cfg_file)
     return config
 
+def init_global_vars(config):
+    #pylint: disable=w0603
+    global SP_API_TOKEN
+    SP_API_TOKEN = config['slushpool']['api_token']
+    global SP_API_TOKEN_RO
+    SP_API_TOKEN_RO = config['slushpool']['ro_api_token']
+    global SP_PROFILE_URL
+    SP_PROFILE_URL = 'https://slushpool.com/accounts/profile/json/' + SP_API_TOKEN
+    global SP_STATS_URL
+    SP_STATS_URL = 'https://slushpool.com/stats/json/' + SP_API_TOKEN
+
+def debug_print(telegram_bot_token):
+    print("Telegram token: " + telegram_bot_token)
+    print("Slushpool api token: " + SP_API_TOKEN)
+    print("Slushpool read only api token: " + SP_API_TOKEN_RO)
+    print("Slushpool profile url: " + SP_PROFILE_URL)
+    print("Slushpool stats url: " + SP_STATS_URL)
+
 def main():
+    """ Main Function """
     # Create the Updater and pass it your bot's token.
-    updater = Updater(TELEGRAM_BOT_TOKEN)
+
+    config = init_config()
+    telegram_bot_token = config['telegram']['token']
+    updater = Updater(telegram_bot_token)
+
+    init_global_vars(config)
+
+    #debug
+    debug_print(telegram_bot_token)
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
