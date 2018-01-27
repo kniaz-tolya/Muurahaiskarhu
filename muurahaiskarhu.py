@@ -3,22 +3,21 @@
 
 import json # manipulation of json
 import socket # for server connection
-import sys
 import time
 import datetime
 import logging
 import urllib.request
 import urllib.parse
+from urllib.request import Request
 import subprocess
 from subprocess import check_output
 from pprint import pprint
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from urllib.request import Request, urlopen
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 PORT = 4028 # Port that json-rpc server runs
 HOST = 'localhost' # Host that the server runs
@@ -30,20 +29,21 @@ TELEGRAM_BOT_TOKEN = ""
 # SlushPool settings
 SP_API_TOKEN = "" # full access token
 SP_API_TOKEN_RO = "" # read only token
-SP_PROFILE_URL = 'https://slushpool.com/accounts/profile/json/' + SP_API_TOKEN
-SP_STATS_URL = 'https://slushpool.com/stats/json/' + SP_API_TOKEN
+SP_PROFILE_URL = ""
+SP_STATS_URL = ""
 
 # SiaMining API
-SIA_API_MARKET = "https://siamining.com/api/v1/market"
-SIA_API_NETWORK = "https://siamining.com/api/v1/network"
-SIA_API_POOLINFO = "https://siamining.com/api/v1/pool"
-SIA_ACCOUNT = ""
-SIA_API_SUMMARY = "https://siamining.com/api/v1/addresses/" + SIA_ACCOUNT + "/summary"
-SIA_API_PAYOUTS = "https://siamining.com/api/v1/addresses/" + SIA_ACCOUNT + "/payouts"
-SIA_API_WORKERS = "https://siamining.com/api/v1/addresses/" + SIA_ACCOUNT + "/workers"
+SIA_API_MARKET = ""
+SIA_API_NETWORK = ""
+SIA_API_POOLINFO = ""
+SIA_ADDRESS = ""
+SIA_API_SUMMARY = ""
+SIA_API_PAYOUTS = ""
+SIA_API_WORKERS = ""
+SIA_API_ADDRESS = ""
 
 # CoinDesk API to get EUR/BTC/USD daily values () - no auth needed <3
-COINDESK_API_URL = 'https://api.coindesk.com/v1/bpi/currentprice.json'
+COINDESK_API_URL = ""
 
 # Ant miners as an array - might be a better way but this was the easiest :)
 # TODO: key-value dict with name + ip
@@ -56,18 +56,19 @@ cd_eur = ""
 cd_usr = ""
 
 def warren(socket):
-	buffer = socket.recv(BUFF)
-	done = False
-	while not done:
-		more = socket.recv(BUFF)
-		if not more:
-			done = True
-		else:
-			buffer = buffer+more
-	if buffer:
-		return buffer.decode('utf-8')
+    buffer = socket.recv(BUFF)
+    done = False
+    while not done:
+        more = socket.recv(BUFF)
+        if not more:
+            done = True
+        else:
+            buffer = buffer+more
+    if buffer:
+        return buffer.decode('utf-8')
 
 def start(bot, update):
+    #pylint:disable=w0613
     keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'),
                  InlineKeyboardButton("Option 2", callback_data='2')]]
 
@@ -76,25 +77,30 @@ def start(bot, update):
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 def money(bot, update, status=True): # status is false if called from inline buttons
+    #pylint:disable=w0613
     data = json.loads(json_url_reader(SP_PROFILE_URL))
     data = json.loads(data) # dunno why this needs to be done twice to work...
-    hashrate = data["hashrate"]
+    #hashrate = data["hashrate"]
     unconfirmed_reward = data["unconfirmed_reward"]
-    print("cd_eur: " + cd_eur.replace(",","")) # debug: format currency to suitable float
-    unconfirmed_reward_eur = float(unconfirmed_reward)*float(cd_eur.replace(",",""))
+    log_entry("cd_eur: " + cd_eur.replace(",", "")) # debug: format currency to suitable float
+    unconfirmed_reward_eur = float(unconfirmed_reward)*float(cd_eur.replace(",", ""))
     estimated_reward = data["estimated_reward"]
-    estimated_reward_eur = float(estimated_reward)*float(cd_eur.replace(",",""))
+    estimated_reward_eur = float(estimated_reward)*float(cd_eur.replace(",", ""))
     confirmed_reward = data["confirmed_reward"]
-    confirmed_reward_eur = float(confirmed_reward)*float(cd_eur.replace(",",""))
+    confirmed_reward_eur = float(confirmed_reward)*float(cd_eur.replace(",", ""))
     total_reward = float(unconfirmed_reward) + float(confirmed_reward)
-    total_reward_eur = float(total_reward)*float(cd_eur.replace(",",""))
+    total_reward_eur = float(total_reward)*float(cd_eur.replace(",", ""))
     respi = "\n"
-    respi = respi + "*Unconfirmed rewards*:\n" + str(unconfirmed_reward) + " BTC " + "(" + str("{0:.2f}".format(unconfirmed_reward_eur)) + " \u20ac)\n"
-    respi = respi + "*Confirmed rewards*:\n" + str(confirmed_reward) + " BTC " + "(" + str("{0:.2f}".format(confirmed_reward_eur)) + " \u20ac)\n"
-    respi = respi + "*Estimated reward*:\n" + str(estimated_reward) + " BTC " + "(" + str("{0:.2f}".format(estimated_reward_eur)) + " \u20ac)\n"
-    respi = respi + "*Total rewards*:\n" + str("{0:.5f}".format(total_reward)) + " BTC " + "(*" + str("{0:.2f}".format(total_reward_eur)) + " \u20ac*)\n"
+    respi = respi + "*Unconfirmed rewards*:\n" + str(unconfirmed_reward) + \
+    " BTC " + "(" + str("{0:.2f}".format(unconfirmed_reward_eur)) + " \u20ac)\n"
+    respi = respi + "*Confirmed rewards*:\n" + str(confirmed_reward) + \
+    " BTC " + "(" + str("{0:.2f}".format(confirmed_reward_eur)) + " \u20ac)\n"
+    respi = respi + "*Estimated reward*:\n" + str(estimated_reward) + \
+    " BTC " + "(" + str("{0:.2f}".format(estimated_reward_eur)) + " \u20ac)\n"
+    respi = respi + "*Total rewards*:\n" + str("{0:.5f}".format(total_reward)) + \
+    " BTC " + "(*" + str("{0:.2f}".format(total_reward_eur)) + " \u20ac*)\n"
     respi = respi + "\n🤑💰🤑"
-    if(status):
+    if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
@@ -128,8 +134,8 @@ def coindesk(bot=True, update=True, status=True):
     respi = "(Last update: " + cd_updated + ")\n\n"
     respi = respi + "1 BTC = " + cd_eur + " EUR\n"
     respi = respi + "1 BTC = " + cd_usd + " USD\n"
-    print("Coindesk values updated!\n" + respi)
-    if(status):
+    log_entry("Coindesk values updated!\n" + respi)
+    if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
@@ -139,22 +145,22 @@ def status(bot, update):
                  InlineKeyboardButton("🤑 Show Me The Money!", callback_data='poolaccount')],
 
                 [InlineKeyboardButton("🌡️ All Temperatures", callback_data='Temperature'),
-                InlineKeyboardButton("💰 BTC Valuation", callback_data='coindesk')],
+                 InlineKeyboardButton("💰 BTC Valuation", callback_data='coindesk')],
 
                 [InlineKeyboardButton("🐜 Ant 1", callback_data='Ant1'),
                  InlineKeyboardButton("🐜 Ant 2", callback_data='Ant2'),
                  InlineKeyboardButton("🐜 Ant 3", callback_data='Ant3'),
                  InlineKeyboardButton("🐜 Ant 4", callback_data='Ant4')],
 
-                 [InlineKeyboardButton("🐜 Ant 5", callback_data='Ant5'),
-                  InlineKeyboardButton("🐜 Ant 6", callback_data='Ant6'),
-                  InlineKeyboardButton("🐜 Ant 7", callback_data='Ant7'),
-                  InlineKeyboardButton("🐜 Ant 8", callback_data='Ant8')],
+                [InlineKeyboardButton("🐜 Ant 5", callback_data='Ant5'),
+                 InlineKeyboardButton("🐜 Ant 6", callback_data='Ant6'),
+                 InlineKeyboardButton("🐜 Ant 7", callback_data='Ant7'),
+                 InlineKeyboardButton("🐜 Ant 8", callback_data='Ant8')],
 
-                 [InlineKeyboardButton("🐜 Ant 9", callback_data='Ant9'),
-                  InlineKeyboardButton("🐜 Ant 10", callback_data='Ant10'),
-                  InlineKeyboardButton("🐜 Ant 11", callback_data='Ant11'),
-                  InlineKeyboardButton("🐜 Ant 12", callback_data='Ant12')],
+                [InlineKeyboardButton("🐜 Ant 9", callback_data='Ant9'),
+                 InlineKeyboardButton("🐜 Ant 10", callback_data='Ant10'),
+                 InlineKeyboardButton("🐜 Ant 11", callback_data='Ant11'),
+                 InlineKeyboardButton("🐜 Ant 12", callback_data='Ant12')],
 
                 [InlineKeyboardButton("Mitäs tähän laitettais?", callback_data='RpiTemp')]]
 
@@ -168,7 +174,7 @@ def one():
 def button(bot, update):
     query = update.callback_query
 
-    choice=''
+    choice = ''
 
     if query.data == 'coindesk':
         choice = 'Coindesk'
@@ -183,11 +189,12 @@ def button(bot, update):
         respi = data
         pprint(respi)
     elif query.data == 'RpiTemp':
-        data = subprocess.Popen('/opt/vc/bin/vcgencmd measure_temp', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        data = subprocess.Popen('/opt/vc/bin/vcgencmd measure_temp', shell=True,  \
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in data.stdout.readlines():
             respi = line
             print(line)
-        data = check_output(['/opt/vc/bin/vcgencmd','measure_temp'])
+        data = check_output(['/opt/vc/bin/vcgencmd', 'measure_temp'])
         respi = data
         print(respi)
     elif query.data == 'Ant1':
@@ -247,16 +254,18 @@ def help(bot, update):
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, error)
+    LOGGER.warning('Update "%s" caused error "%s"', update, error)
 
 def temps(bot, update, status=True):
+    #pylint:disable=w0613
     respi = getstatus("AllMiners")
-    if(status):
+    if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
 
 def getstatus(miner, status=True):
+    """ Read status from miners """
     respi = ''
     hightemp = 0
     highminer = ''
@@ -265,30 +274,30 @@ def getstatus(miner, status=True):
         respi = respi + 'Chip temps of miners:\n'
         for miner in miners:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-            print('Connecting to socket on miner:',miner)
+            print('Connecting to socket on miner:', miner)
             sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
-            dumped_data="stats|0".encode('utf-8')
+            dumped_data = "stats|0".encode('utf-8')
             sock.send(dumped_data) # Send the dumped data to the server
             response = warren(sock)
             response = response.split(',')
             respi = respi + '\n' + miner + ': '
             for key in response:
                 key = key.split('=')
-                if key[0]=='temp2_6':
+                if key[0] == 'temp2_6':
                     respi = respi + "*" + key[1]
                     if int(key[1]) > hightemp:
                         hightemp = int(key[1])
                         highminer = miner
-                elif key[0]=='temp2_7':
+                elif key[0] == 'temp2_7':
                     respi = respi + "/" + key[1]
                     if int(key[1]) > hightemp:
                         hightemp = int(key[1])
                         highminer = miner
-                elif key[0]=='temp2_8':
+                elif key[0] == 'temp2_8':
                     respi = respi + "/" + key[1] + "*℃"
                     if int(key[1]) > hightemp:
                         hightemp = int(key[1])
-                        higminer = miner
+                        highminer = miner
             sock.close() # close the socket connection
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
@@ -329,11 +338,13 @@ def getstatus(miner, status=True):
     return respi
 
 def json_url_reader(url):
+    """ Read JSON output from URL """
     # added user agent so that coindesk is not blocking as rogue request
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    f = urllib.request.urlopen(req)
-    r = f.read().decode('utf-8')
-    return json.dumps(r)
+    fin = urllib.request.urlopen(req)
+    fin = fin.read().decode('utf-8')
+    return json.dumps(fin)
+
 
 def log_entry(choice):
     """ Log entry to screen with timestamp, todo: file """
@@ -354,23 +365,50 @@ def init_config():
         config = json.load(json_cfg_file)
     return config
 
+
 def init_global_vars(config):
     #pylint: disable=w0603
+    global COINDESK_API_URL
+    COINDESK_API_URL = config['coindesk']['api_url']
     global SP_API_TOKEN
     SP_API_TOKEN = config['slushpool']['api_token']
     global SP_API_TOKEN_RO
     SP_API_TOKEN_RO = config['slushpool']['ro_api_token']
     global SP_PROFILE_URL
-    SP_PROFILE_URL = 'https://slushpool.com/accounts/profile/json/' + SP_API_TOKEN
+    SP_PROFILE_URL = config['slushpool']['profile_url'] + SP_API_TOKEN
     global SP_STATS_URL
-    SP_STATS_URL = 'https://slushpool.com/stats/json/' + SP_API_TOKEN
+    SP_STATS_URL = config['slushpool']['stats_url'] + SP_API_TOKEN
+    global SIA_API_MARKET
+    SIA_API_MARKET = config['siamining']['api_market']
+    global SIA_API_NETWORK
+    SIA_API_NETWORK = config['siamining']['api_network']
+    global SIA_API_POOLINFO
+    SIA_API_POOLINFO = config['siamining']['api_poolinfo']
+    global SIA_ADDRESS
+    SIA_ADDRESS = config['siamining']['address']
+    global SIA_API_ADDRESS
+    SIA_API_ADDRESS = config['siamining']['api_address']
+    global SIA_API_SUMMARY
+    SIA_API_SUMMARY = SIA_API_ADDRESS + SIA_ADDRESS + "/summary"
+    global SIA_API_PAYOUTS
+    SIA_API_PAYOUTS = SIA_API_ADDRESS + SIA_ADDRESS + "/payouts"
+    global SIA_API_WORKERS
+    SIA_API_WORKERS = SIA_API_ADDRESS + SIA_ADDRESS + "/workers"
 
-def debug_print(telegram_bot_token):
-    print("Telegram token: " + telegram_bot_token)
-    print("Slushpool api token: " + SP_API_TOKEN)
-    print("Slushpool read only api token: " + SP_API_TOKEN_RO)
-    print("Slushpool profile url: " + SP_PROFILE_URL)
-    print("Slushpool stats url: " + SP_STATS_URL)
+
+def debug_print(telegram_token):
+    log_entry("Telegram token: " + telegram_token)
+    log_entry("Coindesk api url: " + COINDESK_API_URL)
+    log_entry("Slushpool api token: " + SP_API_TOKEN)
+    log_entry("Slushpool read only api token: " + SP_API_TOKEN_RO)
+    log_entry("Slushpool profile url: " + SP_PROFILE_URL)
+    log_entry("Slushpool stats url: " + SP_STATS_URL)
+    log_entry("SiaMining market url: " + SIA_API_MARKET)
+    log_entry("SiaMining network url: " + SIA_API_NETWORK)
+    log_entry("SiaMining pool url: " + SIA_API_POOLINFO)
+    log_entry("SiaMining api summary url: " + SIA_API_SUMMARY)
+    log_entry("SiaMining api payouts url: " + SIA_API_PAYOUTS)
+    log_entry("SiaMining workers url: " + SIA_API_WORKERS)
 
 def main():
     """ Main Function """
