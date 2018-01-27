@@ -56,6 +56,7 @@ cd_eur = ""
 cd_usr = ""
 
 def warren(socket):
+    """ Warren Buffet... I mean Warren Socket reader """
     buffer = socket.recv(BUFF)
     done = False
     while not done:
@@ -68,6 +69,7 @@ def warren(socket):
         return buffer.decode('utf-8')
 
 def start(bot, update):
+    """ Start menu command handler """
     #pylint:disable=w0613
     keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'),
                  InlineKeyboardButton("Option 2", callback_data='2')]]
@@ -115,6 +117,8 @@ def antstats(bot, update):
     update.message.reply_text(text=respi, parse_mode="Markdown")
 
 def recentrounds(bot, update):
+    """ Recent rounds menu command handler """
+    #pylint:disable=w0613
     data = json.loads(json_url_reader(SP_STATS_URL))
     data = json.loads(data) # dunno why this needs to be done twice to work...
     respi = 'Recent blocks:\n'
@@ -124,9 +128,12 @@ def recentrounds(bot, update):
     update.message.reply_text(text=respi, parse_mode="Markdown")
 
 def coindesk(bot=True, update=True, status=True):
+    """ Coindesk api handler """
+    #pylint:disable=w0613
     data = json.loads(json_url_reader(COINDESK_API_URL))
     data = json.loads(data)
     cd_updated = data["time"]["updated"]
+    #pylint:disable=w0603
     global cd_eur
     cd_eur = data["bpi"]["EUR"]["rate"]
     global cd_usd
@@ -141,6 +148,8 @@ def coindesk(bot=True, update=True, status=True):
         return respi
 
 def status(bot, update):
+    """ Status menu command handler """
+    #pylint:disable=w0613
     keyboard = [[InlineKeyboardButton("⭕ Recent Blocks", callback_data='recentrounds'),
                  InlineKeyboardButton("🤑 Show Me The Money!", callback_data='poolaccount')],
 
@@ -168,10 +177,9 @@ def status(bot, update):
 
     update.message.reply_text('What status would you like to see?', reply_markup=reply_markup)
 
-def one():
-    print("what")
 
 def button(bot, update):
+    """ Telegram Menu button handler """
     query = update.callback_query
 
     choice = ''
@@ -250,13 +258,17 @@ def button(bot, update):
                           parse_mode="Markdown")
 
 def help(bot, update):
+    """ Help menu command handler """
+    #pylint:disable=w0613
     update.message.reply_text("Use /status to test this bot.")
 
 def error(bot, update, error):
-    """Log Errors caused by Updates."""
+    #pylint:disable=w0613
+    """ Log Errors caused by Updates  """
     LOGGER.warning('Update "%s" caused error "%s"', update, error)
 
 def temps(bot, update, status=True):
+    """ Temps menu command handler """
     #pylint:disable=w0613
     respi = getstatus("AllMiners")
     if status:
@@ -367,6 +379,7 @@ def init_config():
 
 
 def init_global_vars(config):
+    """ Init global variables - and yes, I know... """
     #pylint: disable=w0603
     global COINDESK_API_URL
     COINDESK_API_URL = config['coindesk']['api_url']
@@ -397,6 +410,7 @@ def init_global_vars(config):
 
 
 def debug_print(telegram_token):
+    """ Debug function to verify config file read and string etc """
     log_entry("Telegram token: " + telegram_token)
     log_entry("Coindesk api url: " + COINDESK_API_URL)
     log_entry("Slushpool api token: " + SP_API_TOKEN)
@@ -436,7 +450,8 @@ def main():
     updater.dispatcher.add_error_handler(error)
 
     # init currency values to global variables before starting polling
-    coindesk(False,False,False) # need to override bot and update since they are not yet initialised :)
+    coindesk(False, False, False) \
+    # need to override bot and update since they are not yet initialised :)
 
     # Start the Bot
     updater.start_polling()
