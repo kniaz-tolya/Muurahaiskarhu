@@ -93,7 +93,7 @@ def money(bot, update, status=True): # status is false if called from inline but
     data = json.loads(json_url_reader(SP_PROFILE_URL))
     data = json.loads(data) # dunno why this needs to be done twice to work...
     unconfirmed_reward = data["unconfirmed_reward"]
-    log_entry("BTC EUR price: " + CD_EUR.replace(",", "")) # debug: format currency to suitable float
+    log_entry("BTC EUR price: " + CD_EUR.replace(",", "")) # debug: format currency
     unconfirmed_reward_eur = float(unconfirmed_reward)*float(CD_EUR.replace(",", ""))
     estimated_reward = data["estimated_reward"]
     #estimated_reward_eur = float(estimated_reward)*float(CD_EUR.replace(",", ""))
@@ -121,14 +121,20 @@ def money(bot, update, status=True): # status is false if called from inline but
 
     sia_balance_usd = sia_balance*SIA_USD
     sia_paid_usd = sia_paid*SIA_USD
+    sia_total_rewards = sia_balance+sia_paid
+    sia_total_rewards_usd = sia_total_rewards*SIA_USD
+
     log_entry("SIA unpaid balance: " + str("{0:.2f}".format(sia_balance_usd)) + " USD")
     log_entry("SIA paid balance: " + str("{0:.2f}".format(sia_paid_usd)) + " USD")
+    log_entry("SIA total rewards: " + str("{0:.2f}".format(sia_total_rewards_usd)) + " USD")
 
     respi = respi + "\n*Siamining:*" + "\n*Unpaid balance:*\n" + \
     str("{0:.5f}".format(sia_balance)) + " SIA " + \
     "(*\u0024" + str("{0:.2f}".format(sia_balance_usd)) + "*)\n"
     respi = respi + "*Paid rewards:*\n" + str("{0:.5f}".format(sia_paid)) + " SIA " + \
     "(*\u0024" + str("{0:.2f}".format(sia_paid_usd)) + "*)\n"
+    respi = respi + "*Total rewards:*\n" + str("{0:.5f}".format(sia_total_rewards)) + " SIA " + \
+    "(*\u0024" + str("{0:.2f}".format(sia_total_rewards_usd)) + "*)\n"
 
     respi = respi + "\n🤑💰🤑"
     if status:
