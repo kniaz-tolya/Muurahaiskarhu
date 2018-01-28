@@ -164,6 +164,16 @@ def recentrounds(bot, update):
         log_entry(block[0])
     update.message.reply_text(text=respi, parse_mode="Markdown")
 
+
+def valuations(bot, update, status=True):
+    """ Show coin valuations """
+    respi = coindesk(bot, update, False)
+    respi = respi + init_sia_price(bot, update, False)
+    if status:
+        update.message.reply_text(text=respi, parse_mode="Markdown")
+    return respi
+
+
 def coindesk(bot=True, update=True, status=True):
     """ Coindesk api handler """
     #pylint:disable=w0613
@@ -209,7 +219,7 @@ def status(bot, update):
                  InlineKeyboardButton("🤑 Show Me The Money!", callback_data='poolaccount')],
 
                 [InlineKeyboardButton("🌡️ All Temperatures", callback_data='Temperature'),
-                 InlineKeyboardButton("💰 BTC Valuation", callback_data='coindesk')],
+                 InlineKeyboardButton("💰 Coin Valuations", callback_data='Valuations')],
 
                 [InlineKeyboardButton("🐜 Ant 1", callback_data='Ant1'),
                  InlineKeyboardButton("🐜 Ant 2", callback_data='Ant2'),
@@ -226,6 +236,11 @@ def status(bot, update):
                  InlineKeyboardButton("🐜 Ant 11", callback_data='Ant11'),
                  InlineKeyboardButton("🐜 Ant 12", callback_data='Ant12')],
 
+                [InlineKeyboardButton("🐜 Ant 13", callback_data='Ant13'),
+                 InlineKeyboardButton("🐜 Ant 14", callback_data='Ant14'),
+                 InlineKeyboardButton("🐜 Ant 15", callback_data='Ant15'),
+                 InlineKeyboardButton("🐜 Ant 16", callback_data='Ant16')],
+
                 [InlineKeyboardButton("Mitäs tähän laitettais?", callback_data='RpiTemp')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -239,13 +254,17 @@ def button(bot, update):
 
     choice = ''
 
-    if query.data == 'coindesk':
-        choice = 'Coindesk'
-        respi = coindesk(bot, update, False)
+    if query.data == 'Valuations':
+        choice = 'Valuations'
+        log_entry("Selected menu item: " + choice)
+        respi = valuations(bot, update, False)
     elif query.data == 'Temperature':
         choice = 'Temperature'
+        log_entry("Selected menu item: " + choice)
         respi = temps(bot, update, False)
     elif query.data == 'poolaccount':
+        choice = 'Money'
+        log_entry("Selected menu item: " + choice)
         respi = money(bot, update, False) # call with False status to allow response overdrive
     elif query.data == 'recentrounds':
         data = json.loads(json_url_reader(SP_STATS_URL))
@@ -305,7 +324,7 @@ def button(bot, update):
     else:
         choice = 'Invalid choice!'
 
-    log_entry(choice)
+    log_entry("Finished menu item: " + choice)
 
     bot.edit_message_text(text="{}".format(respi),
                           chat_id=query.message.chat_id,
