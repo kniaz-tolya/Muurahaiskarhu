@@ -23,6 +23,8 @@ PORT = 4028 # Port that json-rpc server runs
 HOST = 'localhost' # Host that the server runs
 BUFF = 4096 # Number of bytes to receive from the server socket
 
+# Global variables
+
 # Telegram bot token
 TELEGRAM_BOT_TOKEN = ""
 
@@ -47,11 +49,8 @@ COINDESK_API_URL = ""
 
 # Ant miners as an array - might be a better way but this was the easiest :)
 # TODO: key-value dict with name + ip
-miners = ["192.168.2.11", "192.168.2.12", "192.168.2.13", "192.168.2.14", "192.168.2.15",
-          "192.168.2.16", "192.168.2.17", "192.168.2.18", "192.168.2.19", "192.168.2.20",
-          "192.168.2.21", "192.168.2.22", "192.168.1.219"]
+MINERS = ""
 
-# global variables
 cd_eur = ""
 cd_usr = ""
 
@@ -113,7 +112,7 @@ def antstats(bot, update):
     respi = 'Recent blocks:\n'
     blocks = data["blocks"]
     for keys in data:
-        print(keys)
+        log_entry(keys)
     update.message.reply_text(text=respi, parse_mode="Markdown")
 
 def recentrounds(bot, update):
@@ -124,7 +123,7 @@ def recentrounds(bot, update):
     respi = 'Recent blocks:\n'
     blocks = data["blocks"]
     for block in data["blocks"]:
-        print(block[0])
+        log_entry(block[0])
     update.message.reply_text(text=respi, parse_mode="Markdown")
 
 def coindesk(bot=True, update=True, status=True):
@@ -201,10 +200,10 @@ def button(bot, update):
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in data.stdout.readlines():
             respi = line
-            print(line)
+            log_entry(line)
         data = check_output(['/opt/vc/bin/vcgencmd', 'measure_temp'])
         respi = data
-        print(respi)
+        log_entry(respi)
     elif query.data == 'Ant1':
         choice = miners[0]
         respi = getstatus(miners[0])
@@ -246,11 +245,11 @@ def button(bot, update):
         respi = getstatus(miners[11])
     elif query.data == 'AllMiners':
         respi = getstatus(query.data)
-        print(respi)
+        log_entry(respi)
     else:
         choice = 'Invalid choice!'
 
-    print(choice)
+    log_entry(choice)
 
     bot.edit_message_text(text="{}".format(respi),
                           chat_id=query.message.chat_id,
@@ -286,7 +285,7 @@ def getstatus(miner, status=True):
         respi = respi + 'Chip temps of miners:\n'
         for miner in miners:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-            print('Connecting to socket on miner:', miner)
+            log_entry('Connecting to socket on miner:', miner)
             sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
             dumped_data = "stats|0".encode('utf-8')
             sock.send(dumped_data) # Send the dumped data to the server
@@ -313,7 +312,7 @@ def getstatus(miner, status=True):
             sock.close() # close the socket connection
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-        print('Connecting to socket on miner:', miner)
+        log_entry('Connecting to socket on miner:', miner)
         sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
         dumped_data = "stats|0".encode('utf-8')
         sock.send(dumped_data) # Send the dumped data to the server
@@ -322,7 +321,7 @@ def getstatus(miner, status=True):
         respi = miner + ': '
         for key in response:
             key = key.split('=')
-            print(key)
+            log_entry(key)
             if key[0] == 'temp2_6':
                 respi = respi + "Chip1: *" + key[1] + "*℃"
                 if int(key[1]) > hightemp:
@@ -407,6 +406,8 @@ def init_global_vars(config):
     SIA_API_PAYOUTS = SIA_API_ADDRESS + SIA_ADDRESS + "/payouts"
     global SIA_API_WORKERS
     SIA_API_WORKERS = SIA_API_ADDRESS + SIA_ADDRESS + "/workers"
+    global MINERS
+    MINERS = config['mining']['miners']
 
 
 def debug_print(telegram_token):
@@ -423,6 +424,8 @@ def debug_print(telegram_token):
     log_entry("SiaMining api summary url: " + SIA_API_SUMMARY)
     log_entry("SiaMining api payouts url: " + SIA_API_PAYOUTS)
     log_entry("SiaMining workers url: " + SIA_API_WORKERS)
+    for miner in MINERS:
+        log_entry("Adding miner to bot: " + miner)
 
 def main():
     """ Main Function """
