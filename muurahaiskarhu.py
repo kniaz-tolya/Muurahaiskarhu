@@ -256,7 +256,7 @@ def button(bot, update):
 
     if query.data == 'Valuations':
         choice = 'Valuations'
-        log_entry("Selected menu item: " + choice)
+        log_entry("--- Selected menu item: " + choice)
         respi = valuations(bot, update, False)
     elif query.data == 'Temperature':
         choice = 'Temperature'
@@ -324,7 +324,7 @@ def button(bot, update):
     else:
         choice = 'Invalid choice!'
 
-    log_entry("Finished menu item: " + choice)
+    log_entry("--- Finished menu item: " + choice)
 
     bot.edit_message_text(text="{}".format(respi),
                           chat_id=query.message.chat_id,
@@ -360,7 +360,7 @@ def getstatus(miner, status=True):
         respi = respi + 'Chip temps of miners:\n'
         for miner in MINERS:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-            log_entry('Connecting to socket on miner:', miner)
+            #log_entry('Connecting to socket on miner:', miner)
             sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
             dumped_data = "stats|0".encode('utf-8')
             sock.send(dumped_data) # Send the dumped data to the server
@@ -387,7 +387,7 @@ def getstatus(miner, status=True):
             sock.close() # close the socket connection
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-        log_entry('Connecting to socket on miner:', miner)
+        #log_entry('Connecting to socket on miner:', miner)
         sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
         dumped_data = "stats|0".encode('utf-8')
         sock.send(dumped_data) # Send the dumped data to the server
