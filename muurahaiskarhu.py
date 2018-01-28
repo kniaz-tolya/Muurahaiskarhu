@@ -15,15 +15,17 @@ from pprint import pprint
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
+# Logging config
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
+# Global variables
+
+# Warren the socke reader settings
 PORT = 4028 # Port that json-rpc server runs
 HOST = 'localhost' # Host that the server runs
 BUFF = 4096 # Number of bytes to receive from the server socket
-
-# Global variables
 
 # Telegram bot token
 TELEGRAM_BOT_TOKEN = ""
@@ -51,21 +53,28 @@ COINDESK_API_URL = ""
 # TODO: key-value dict with name + ip
 MINERS = ""
 
-cd_eur = ""
-cd_usr = ""
+# default values overriden by config
+TEMP_WARNING_C = "90"
+TEMP_CAUTION_C = "115"
 
-def warren(socket):
+CD_EUR = ""
+CD_USD = ""
+SIA_USD = ""
+
+def warren(sock):
     """ Warren Buffet... I mean Warren Socket reader """
-    buffer = socket.recv(BUFF)
+    buffer = sock.recv(BUFF)
     done = False
     while not done:
-        more = socket.recv(BUFF)
+        more = sock.recv(BUFF)
         if not more:
             done = True
         else:
             buffer = buffer+more
     if buffer:
         return buffer.decode('utf-8')
+    return None
+
 
 def start(bot, update):
     """ Start menu command handler """
@@ -79,27 +88,48 @@ def start(bot, update):
 
 def money(bot, update, status=True): # status is false if called from inline buttons
     #pylint:disable=w0613
+
+    # Slushpool
     data = json.loads(json_url_reader(SP_PROFILE_URL))
     data = json.loads(data) # dunno why this needs to be done twice to work...
-    #hashrate = data["hashrate"]
     unconfirmed_reward = data["unconfirmed_reward"]
-    log_entry("cd_eur: " + cd_eur.replace(",", "")) # debug: format currency to suitable float
-    unconfirmed_reward_eur = float(unconfirmed_reward)*float(cd_eur.replace(",", ""))
+    log_entry("BTC EUR price: " + CD_EUR.replace(",", "")) # debug: format currency to suitable float
+    unconfirmed_reward_eur = float(unconfirmed_reward)*float(CD_EUR.replace(",", ""))
     estimated_reward = data["estimated_reward"]
-    estimated_reward_eur = float(estimated_reward)*float(cd_eur.replace(",", ""))
+    #estimated_reward_eur = float(estimated_reward)*float(CD_EUR.replace(",", ""))
     confirmed_reward = data["confirmed_reward"]
-    confirmed_reward_eur = float(confirmed_reward)*float(cd_eur.replace(",", ""))
+    confirmed_reward_eur = float(confirmed_reward)*float(CD_EUR.replace(",", ""))
     total_reward = float(unconfirmed_reward) + float(confirmed_reward)
-    total_reward_eur = float(total_reward)*float(cd_eur.replace(",", ""))
-    respi = "\n"
+    total_reward_eur = float(total_reward)*float(CD_EUR.replace(",", ""))
+    respi = "*Slushpool:*\n"
     respi = respi + "*Unconfirmed rewards*:\n" + str(unconfirmed_reward) + \
     " BTC " + "(" + str("{0:.2f}".format(unconfirmed_reward_eur)) + " \u20ac)\n"
     respi = respi + "*Confirmed rewards*:\n" + str(confirmed_reward) + \
     " BTC " + "(" + str("{0:.2f}".format(confirmed_reward_eur)) + " \u20ac)\n"
-    respi = respi + "*Estimated reward*:\n" + str(estimated_reward) + \
-    " BTC " + "(" + str("{0:.2f}".format(estimated_reward_eur)) + " \u20ac)\n"
+    #respi = respi + "*Estimated reward*:\n" + str(estimated_reward) + \
+    #" BTC " + "(" + str("{0:.2f}".format(estimated_reward_eur)) + " \u20ac)\n"
     respi = respi + "*Total rewards*:\n" + str("{0:.5f}".format(total_reward)) + \
     " BTC " + "(*" + str("{0:.2f}".format(total_reward_eur)) + " \u20ac*)\n"
+
+    # Siamining
+    data = json.loads(json_url_reader(SIA_API_SUMMARY))
+    data = json.loads(data)
+    sia_balance = float(data['balance'])
+    sia_paid = float(data['paid'])
+    log_entry("SIA balance: " + str("{0:.5f}".format(sia_balance)) + " SIA")
+    log_entry("SIA paid: " + str("{0:.5f}".format(sia_paid)) + " SIA")
+
+    sia_balance_usd = sia_balance*SIA_USD
+    sia_paid_usd = sia_paid*SIA_USD
+    log_entry("SIA unpaid balance: " + str("{0:.2f}".format(sia_balance_usd)) + " USD")
+    log_entry("SIA paid balance: " + str("{0:.2f}".format(sia_paid_usd)) + " USD")
+
+    respi = respi + "\n*Siamining:*" + "\n*Unpaid balance:*\n" + \
+    str("{0:.5f}".format(sia_balance)) + " SIA " + \
+    "(*\u0024" + str("{0:.2f}".format(sia_balance_usd)) + "*)\n"
+    respi = respi + "*Paid rewards:*\n" + str("{0:.5f}".format(sia_paid)) + " SIA " + \
+    "(*\u0024" + str("{0:.2f}".format(sia_paid_usd)) + "*)\n"
+
     respi = respi + "\n🤑💰🤑"
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
@@ -107,6 +137,8 @@ def money(bot, update, status=True): # status is false if called from inline but
         return respi
 
 def antstats(bot, update):
+    #pylint:disable=w0613
+    """ Ant Miner Stats """
     data = json.loads(json_url_reader(SP_STATS_URL))
     data = json.loads(data) # dunno why this needs to be done twice to work...
     respi = 'Recent blocks:\n'
@@ -133,18 +165,36 @@ def coindesk(bot=True, update=True, status=True):
     data = json.loads(data)
     cd_updated = data["time"]["updated"]
     #pylint:disable=w0603
-    global cd_eur
-    cd_eur = data["bpi"]["EUR"]["rate"]
-    global cd_usd
-    cd_usd = data["bpi"]["USD"]["rate"]
+    global CD_EUR
+    CD_EUR = data["bpi"]["EUR"]["rate"]
+    global CD_USD
+    CD_USD = data["bpi"]["USD"]["rate"]
     respi = "(Last update: " + cd_updated + ")\n\n"
-    respi = respi + "1 BTC = " + cd_eur + " EUR\n"
-    respi = respi + "1 BTC = " + cd_usd + " USD\n"
-    log_entry("Coindesk values updated!\n" + respi)
+    respi = respi + "1 BTC = " + CD_EUR + " EUR\n"
+    respi = respi + "1 BTC = " + CD_USD + " USD\n"
+    log_entry("Coindesk values updated!")
+    log_entry("1 BTC = " + CD_EUR + " EUR")
+    log_entry("1 BTC = " + CD_USD + " USD")
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
+
+def init_sia_price(bot=True, update=True, status=True):
+    """ Get SIA coin price """
+    data = json.loads(json_url_reader(SIA_API_MARKET))
+    data = json.loads(data)
+    #pylint:disable=w0603
+    global SIA_USD
+    SIA_USD = data["usd_price"]
+    respi = "1 SIA = " + str(SIA_USD) + " USD"
+    log_entry("Siamining values updated!")
+    log_entry(respi)
+    if status:
+        update.message.reply_text(text=respi, parse_mode="Markdown")
+    else:
+        return respi
+
 
 def status(bot, update):
     """ Status menu command handler """
@@ -205,44 +255,44 @@ def button(bot, update):
         respi = data
         log_entry(respi)
     elif query.data == 'Ant1':
-        choice = miners[0]
-        respi = getstatus(miners[0])
+        choice = MINERS[0]
+        respi = getstatus(MINERS[0])
     elif query.data == 'Ant2':
-        choice = miners[1]
-        respi = getstatus(miners[1])
+        choice = MINERS[1]
+        respi = getstatus(MINERS[1])
     elif query.data == 'Ant2':
-        choice = miners[1]
-        respi = getstatus(miners[1])
+        choice = MINERS[1]
+        respi = getstatus(MINERS[1])
     elif query.data == 'Ant3':
-        choice = miners[2]
-        respi = getstatus(miners[2])
+        choice = MINERS[2]
+        respi = getstatus(MINERS[2])
     elif query.data == 'Ant4':
-        choice = miners[3]
-        respi = getstatus(miners[3])
+        choice = MINERS[3]
+        respi = getstatus(MINERS[3])
     elif query.data == 'Ant5':
-        choice = miners[4]
-        respi = getstatus(miners[4])
+        choice = MINERS[4]
+        respi = getstatus(MINERS[4])
     elif query.data == 'Ant6':
-        choice = miners[5]
-        respi = getstatus(miners[5])
+        choice = MINERS[5]
+        respi = getstatus(MINERS[5])
     elif query.data == 'Ant7':
-        choice = miners[6]
-        respi = getstatus(miners[6])
+        choice = MINERS[6]
+        respi = getstatus(MINERS[6])
     elif query.data == 'Ant8':
-        choice = miners[7]
-        respi = getstatus(miners[7])
+        choice = MINERS[7]
+        respi = getstatus(MINERS[7])
     elif query.data == 'Ant9':
-        choice = miners[8]
-        respi = getstatus(miners[8])
+        choice = MINERS[8]
+        respi = getstatus(MINERS[8])
     elif query.data == 'Ant10':
-        choice = miners[9]
-        respi = getstatus(miners[9])
+        choice = MINERS[9]
+        respi = getstatus(MINERS[9])
     elif query.data == 'Ant11':
-        choice = miners[10]
-        respi = getstatus(miners[10])
+        choice = MINERS[10]
+        respi = getstatus(MINERS[10])
     elif query.data == 'Ant12':
-        choice = miners[11]
-        respi = getstatus(miners[11])
+        choice = MINERS[11]
+        respi = getstatus(MINERS[11])
     elif query.data == 'AllMiners':
         respi = getstatus(query.data)
         log_entry(respi)
@@ -283,7 +333,7 @@ def getstatus(miner, status=True):
     if miner == "AllMiners":
         response = ""
         respi = respi + 'Chip temps of miners:\n'
-        for miner in miners:
+        for miner in MINERS:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
             log_entry('Connecting to socket on miner:', miner)
             sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
@@ -339,14 +389,17 @@ def getstatus(miner, status=True):
                     highminer = miner
         sock.close() # close the socket connection
             #print(respi)
-    if hightemp > 105:
-        respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >105℃ 🌶️" # >105
-    elif hightemp > 114:
-        respi = respi + "\n\n🔥🔥🔥 *CAUTION*: *TOO HIGH TEMPS*!!! >115℃ 🔥🔥🔥" # >115
+    if hightemp > TEMP_WARNING_C:
+        respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >" \
+        + TEMP_WARNING_C + "℃ 🌶️" # >105
+    elif hightemp > TEMP_CAUTION_C:
+        respi = respi + "\n\n🔥🔥🔥 *CAUTION*: *TOO HIGH TEMPS*!!! >" \
+        + TEMP_CAUTION_C + "℃ 🔥🔥🔥" # >115
     else:
         respi = respi+ "\n\n👌 All temps within boundaries!" # <=105
     respi = respi + "\n🌡️ Highest temp: *" + str(hightemp) + "℃* (" + str(highminer) + ")"
     return respi
+
 
 def json_url_reader(url):
     """ Read JSON output from URL """
@@ -408,6 +461,11 @@ def init_global_vars(config):
     SIA_API_WORKERS = SIA_API_ADDRESS + SIA_ADDRESS + "/workers"
     global MINERS
     MINERS = config['mining']['miners']
+    global TEMP_CAUTION_C
+    TEMP_CAUTION_C = config['mining']['temp_caution_c']
+    global TEMP_WARNING_C
+    TEMP_WARNING_C = config['mining']['temp_warning_c']
+
 
 
 def debug_print(telegram_token):
@@ -426,6 +484,9 @@ def debug_print(telegram_token):
     log_entry("SiaMining workers url: " + SIA_API_WORKERS)
     for miner in MINERS:
         log_entry("Adding miner to bot: " + miner)
+    log_entry("Temperature limits: caution=" + TEMP_CAUTION_C + \
+              ", warning=" + TEMP_WARNING_C)
+
 
 def main():
     """ Main Function """
@@ -433,12 +494,17 @@ def main():
 
     config = init_config()
     telegram_bot_token = config['telegram']['token']
-    updater = Updater(telegram_bot_token)
 
     init_global_vars(config)
 
     #debug
     debug_print(telegram_bot_token)
+
+    # init currency values to global variables before starting polling
+    coindesk(False, False, False)
+    init_sia_price(False, False, False)
+
+    updater = Updater(telegram_bot_token)
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
@@ -451,10 +517,6 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('stats', antstats))
     updater.dispatcher.add_handler(CommandHandler('temps', temps))
     updater.dispatcher.add_error_handler(error)
-
-    # init currency values to global variables before starting polling
-    coindesk(False, False, False) \
-    # need to override bot and update since they are not yet initialised :)
 
     # Start the Bot
     updater.start_polling()
