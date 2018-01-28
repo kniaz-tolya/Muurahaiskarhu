@@ -414,10 +414,10 @@ def getstatus(miner, status=True):
                     highminer = miner
         sock.close() # close the socket connection
             #print(respi)
-    if hightemp > TEMP_WARNING_C:
+    if hightemp > int(TEMP_WARNING_C):
         respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >" \
         + TEMP_WARNING_C + "℃ 🌶️" # >105
-    elif hightemp > TEMP_CAUTION_C:
+    elif hightemp > int(TEMP_CAUTION_C):
         respi = respi + "\n\n🔥🔥🔥 *CAUTION*: *TOO HIGH TEMPS*!!! >" \
         + TEMP_CAUTION_C + "℃ 🔥🔥🔥" # >115
     else:
