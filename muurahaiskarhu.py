@@ -281,48 +281,64 @@ def button(bot, update):
         log_entry(respi)
     elif query.data == 'Ant1':
         choice = MINERS[0]
-        respi = getstatus(MINERS[0])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[0])
     elif query.data == 'Ant2':
         choice = MINERS[1]
-        respi = getstatus(MINERS[1])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[1])
     elif query.data == 'Ant2':
         choice = MINERS[1]
-        respi = getstatus(MINERS[1])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[1])
     elif query.data == 'Ant3':
         choice = MINERS[2]
-        respi = getstatus(MINERS[2])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[2])
     elif query.data == 'Ant4':
         choice = MINERS[3]
-        respi = getstatus(MINERS[3])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[3])
     elif query.data == 'Ant5':
         choice = MINERS[4]
-        respi = getstatus(MINERS[4])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[4])
     elif query.data == 'Ant6':
         choice = MINERS[5]
-        respi = getstatus(MINERS[5])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[5])
     elif query.data == 'Ant7':
         choice = MINERS[6]
-        respi = getstatus(MINERS[6])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[6])
     elif query.data == 'Ant8':
         choice = MINERS[7]
-        respi = getstatus(MINERS[7])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[7])
     elif query.data == 'Ant9':
         choice = MINERS[8]
-        respi = getstatus(MINERS[8])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[8])
     elif query.data == 'Ant10':
         choice = MINERS[9]
-        respi = getstatus(MINERS[9])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[9])
     elif query.data == 'Ant11':
         choice = MINERS[10]
-        respi = getstatus(MINERS[10])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[10])
     elif query.data == 'Ant12':
         choice = MINERS[11]
-        respi = getstatus(MINERS[11])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[11])
     elif query.data == 'Ant13':
         choice = MINERS[12]
-        respi = getstatus(MINERS[12])
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[12])
     elif query.data == 'AllMiners':
-        respi = getstatus(query.data)
+        choice = 'All Miner Temps'
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(query.data)
         log_entry(respi)
     else:
         choice = 'Invalid choice!'
@@ -347,17 +363,80 @@ def error(bot, update, error):
 def temps(bot, update, status=True):
     """ Temps menu command handler """
     #pylint:disable=w0613
-    respi = getstatus("AllMiners")
+    respi = get_status("AllMiners")
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
 
-def getstatus(miner, status=True):
+def get_temps_from_stats(miner, stats, respi=''):
+    """ Evaluate temperatures from miner stats output and add to response """
+    hightemp = 0
+    highminer = ''
+    miner_model = "Unknown"
+    log_entry("Connecting to socket on miner: " + str(miner))
+    for key in stats:
+        key = key.split('=')
+        # Detect Antminer type (A3/S9 supported currently)
+        if key[0] == 'Type':
+            miner_model = str(key[1]).split('|')[0]
+            log_entry("Miner model: " + miner_model)
+            respi = respi + " (*" + miner_model.split(' ')[1] + "*) "
+        # Antminer S9
+        if miner_model == "Antminer S9":
+            if key[0] == 'temp2_6':
+                respi = respi + "*" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_7':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_8':
+                respi = respi + "/" + key[1] + "*℃"
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+        # Antminer A3
+        if miner_model == "Antminer A3":
+            if key[0] == 'temp2_1':
+                respi = respi + "*" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_2':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_3':
+                respi = respi + "/" + key[1] + "*℃"
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+    return respi, hightemp, highminer
+
+def evaluate_temps(respi, hightemp, highminer):
+    if hightemp > int(TEMP_WARNING_C):
+        respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >" \
+        + TEMP_WARNING_C + "℃ 🌶️" # >105
+    elif hightemp > int(TEMP_CAUTION_C):
+        respi = respi + "\n\n🔥🔥🔥 *CAUTION*: *TOO HIGH TEMPS*!!! >" \
+        + TEMP_CAUTION_C + "℃ 🔥🔥🔥" # >115
+    else:
+        respi = respi+ "\n\n👌 All temps within boundaries!" # <=105
+    log_entry("Highest temperature: " + str(hightemp))
+    respi = respi + "\n🌡️ Highest temp: *" + str(hightemp) + "℃* (" + str(highminer) + ")"
+    return respi
+
+def get_status(miner, status=True):
     """ Read status from miners """
     respi = ''
     hightemp = 0
     highminer = ''
+    miner_model = "Unknown"
     if miner == "AllMiners":
         response = ""
         respi = respi + 'Chip temps of miners:\n'
@@ -370,23 +449,8 @@ def getstatus(miner, status=True):
             response = warren(sock)
             response = response.split(',')
             respi = respi + '\n' + miner + ': '
-            for key in response:
-                key = key.split('=')
-                if key[0] == 'temp2_6':
-                    respi = respi + "*" + key[1]
-                    if int(key[1]) > hightemp:
-                        hightemp = int(key[1])
-                        highminer = miner
-                elif key[0] == 'temp2_7':
-                    respi = respi + "/" + key[1]
-                    if int(key[1]) > hightemp:
-                        hightemp = int(key[1])
-                        highminer = miner
-                elif key[0] == 'temp2_8':
-                    respi = respi + "/" + key[1] + "*℃"
-                    if int(key[1]) > hightemp:
-                        hightemp = int(key[1])
-                        highminer = miner
+            respi, hightemp, highminer = get_temps_from_stats(miner, response, respi)
+            # debug: log_entry(str(hightemp))
             sock.close() # close the socket connection
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
@@ -397,35 +461,12 @@ def getstatus(miner, status=True):
         response = warren(sock)
         response = response.split(',')
         respi = miner + ': '
-        for key in response:
-            key = key.split('=')
-            log_entry(key)
-            if key[0] == 'temp2_6':
-                respi = respi + "Chip1: *" + key[1] + "*℃"
-                if int(key[1]) > hightemp:
-                    hightemp = int(key[1])
-                    highminer = miner
-            elif key[0] == 'temp2_7':
-                respi = respi + ", Chip2: *" + key[1] + "*℃"
-                if int(key[1]) > hightemp:
-                    hightemp = int(key[1])
-                    highminer = miner
-            elif key[0] == 'temp2_8':
-                respi = respi + ", Chip3: *" + key[1] + "*℃"
-                if int(key[1]) > hightemp:
-                    hightemp = int(key[1])
-                    highminer = miner
+        respi, hightemp, highminer = get_temps_from_stats(miner, response, respi)
         sock.close() # close the socket connection
             #print(respi)
-    if hightemp > int(TEMP_WARNING_C):
-        respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >" \
-        + TEMP_WARNING_C + "℃ 🌶️" # >105
-    elif hightemp > int(TEMP_CAUTION_C):
-        respi = respi + "\n\n🔥🔥🔥 *CAUTION*: *TOO HIGH TEMPS*!!! >" \
-        + TEMP_CAUTION_C + "℃ 🔥🔥🔥" # >115
-    else:
-        respi = respi+ "\n\n👌 All temps within boundaries!" # <=105
-    respi = respi + "\n🌡️ Highest temp: *" + str(hightemp) + "℃* (" + str(highminer) + ")"
+
+    respi = evaluate_temps(respi, hightemp, highminer)
+
     return respi
 
 
@@ -447,8 +488,8 @@ def log_entry(choice):
 
 def maini():
     """ Debug function to override mine for development """
-    #response = getstatus("192.168.2.11")
-    getstatus("192.168.2.11")
+    #response = get_status("192.168.2.11")
+    get_status("192.168.2.11")
 
 
 def init_config():
