@@ -260,11 +260,11 @@ def button(bot, update):
         respi = valuations(bot, update, False)
     elif query.data == 'Temperature':
         choice = 'Temperature'
-        log_entry("Selected menu item: " + choice)
+        log_entry("--- Selected menu item: " + choice)
         respi = temps(bot, update, False)
     elif query.data == 'poolaccount':
         choice = 'Money'
-        log_entry("Selected menu item: " + choice)
+        log_entry("--- Selected menu item: " + choice)
         respi = money(bot, update, False) # call with False status to allow response overdrive
     elif query.data == 'recentrounds':
         data = json.loads(json_url_reader(SP_STATS_URL))
@@ -318,6 +318,9 @@ def button(bot, update):
     elif query.data == 'Ant12':
         choice = MINERS[11]
         respi = getstatus(MINERS[11])
+    elif query.data == 'Ant13':
+        choice = MINERS[12]
+        respi = getstatus(MINERS[12])
     elif query.data == 'AllMiners':
         respi = getstatus(query.data)
         log_entry(respi)
@@ -538,7 +541,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CommandHandler('money', money))
     updater.dispatcher.add_handler(CommandHandler('rounds', recentrounds))
-    updater.dispatcher.add_handler(CommandHandler('cd', coindesk))
+    updater.dispatcher.add_handler(CommandHandler('cd', valuations))
     updater.dispatcher.add_handler(CommandHandler('stats', antstats))
     updater.dispatcher.add_handler(CommandHandler('temps', temps))
     updater.dispatcher.add_error_handler(error)
