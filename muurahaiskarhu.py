@@ -215,11 +215,10 @@ def init_sia_price(bot=True, update=True, status=True):
 def status(bot, update):
     """ Status menu command handler """
     #pylint:disable=w0613
-    keyboard = [[InlineKeyboardButton("⭕ Recent Blocks", callback_data='recentrounds'),
-                 InlineKeyboardButton("🤑 Show Me The Money!", callback_data='poolaccount')],
+    keyboard = [[InlineKeyboardButton("🤑 Show-me-the-mo!", callback_data='poolaccount')],
 
-                [InlineKeyboardButton("🌡️ All Temperatures", callback_data='Temperature'),
-                 InlineKeyboardButton("💰 Coin Valuations", callback_data='Valuations')],
+                [InlineKeyboardButton("🌡️ Temperatures", callback_data='Temperature'),
+                 InlineKeyboardButton("💰 Coin Values", callback_data='Valuations')],
 
                 [InlineKeyboardButton("🐜 Ant 1", callback_data='Ant1'),
                  InlineKeyboardButton("🐜 Ant 2", callback_data='Ant2'),
@@ -239,9 +238,7 @@ def status(bot, update):
                 [InlineKeyboardButton("🐜 Ant 13", callback_data='Ant13'),
                  InlineKeyboardButton("🐜 Ant 14", callback_data='Ant14'),
                  InlineKeyboardButton("🐜 Ant 15", callback_data='Ant15'),
-                 InlineKeyboardButton("🐜 Ant 16", callback_data='Ant16')],
-
-                [InlineKeyboardButton("Mitäs tähän laitettais?", callback_data='RpiTemp')]]
+                 InlineKeyboardButton("🐜 Ant 16", callback_data='Ant16')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
