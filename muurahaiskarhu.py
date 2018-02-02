@@ -46,6 +46,11 @@ SIA_API_PAYOUTS = ""
 SIA_API_WORKERS = ""
 SIA_API_ADDRESS = ""
 
+# Litecoinpool.org
+
+LTC_API_KEY = ""
+LTC_STATS_URL = ""
+
 # CoinDesk API to get EUR/BTC/USD daily values () - no auth needed <3
 COINDESK_API_URL = ""
 
@@ -332,11 +337,19 @@ def button(bot, update):
         choice = MINERS[12]
         log_entry("--- Selected menu item: " + choice)
         respi = get_status(MINERS[12])
+    elif query.data == 'Ant14':
+        choice = MINERS[13]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[13])
+    elif query.data == 'Ant15':
+        choice = MINERS[14]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[14])
     elif query.data == 'AllMiners':
         choice = 'All Miner Temps'
         log_entry("--- Selected menu item: " + choice)
         respi = get_status(query.data)
-        log_entry(respi)
+        #log_entry(respi)
     else:
         choice = 'Invalid choice!'
 
@@ -397,7 +410,7 @@ def get_temps_from_stats(miner, stats, respi=''):
                     hightemp = int(key[1])
                     highminer = miner
         # Antminer A3
-        if miner_model == "Antminer A3":
+        if miner_model == "Antminer A3" or miner_model == "Antminer L3+":
             if key[0] == 'temp2_1':
                 respi = respi + "*" + key[1]
                 if int(key[1]) > hightemp:
@@ -439,7 +452,6 @@ def get_status(miner, status=True):
         respi = respi + 'Chip temps of miners:\n'
         for miner in MINERS:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-            #log_entry('Connecting to socket on miner:', miner)
             sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
             dumped_data = "stats|0".encode('utf-8')
             sock.send(dumped_data) # Send the dumped data to the server
@@ -451,7 +463,6 @@ def get_status(miner, status=True):
             sock.close() # close the socket connection
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
-        #log_entry('Connecting to socket on miner:', miner)
         sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
         dumped_data = "stats|0".encode('utf-8')
         sock.send(dumped_data) # Send the dumped data to the server
@@ -460,7 +471,6 @@ def get_status(miner, status=True):
         respi = miner + ': '
         respi, hightemp, highminer = get_temps_from_stats(miner, response, respi)
         sock.close() # close the socket connection
-            #print(respi)
 
     respi = evaluate_temps(respi, hightemp, highminer)
 
@@ -531,6 +541,10 @@ def init_global_vars(config):
     TEMP_CAUTION_C = config['mining']['temp_caution_c']
     global TEMP_WARNING_C
     TEMP_WARNING_C = config['mining']['temp_warning_c']
+    global LTC_API_KEY
+    LTC_API_KEY = config['litecoinpool']['api_key']
+    global LTC_STATS_URL
+    LTC_STATS_URL = config['litecoinpool']['stats_url'] + LTC_API_KEY
 
 
 
@@ -548,6 +562,7 @@ def debug_print(telegram_token):
     log_entry("SiaMining api summary url: " + SIA_API_SUMMARY)
     log_entry("SiaMining api payouts url: " + SIA_API_PAYOUTS)
     log_entry("SiaMining workers url: " + SIA_API_WORKERS)
+    log_entry("Ltcminingpool stats url: " + LTC_STATS_URL)
     for miner in MINERS:
         log_entry("Adding miner to bot: " + miner)
     log_entry("Temperature limits: caution=" + TEMP_CAUTION_C + \
