@@ -65,6 +65,8 @@ TEMP_CAUTION_C = "115"
 CD_EUR = ""
 CD_USD = ""
 SIA_USD = ""
+LTC_EUR = ""
+LTC_USD = ""
 
 def warren(sock):
     """ Warren Buffet... I mean Warren Socket reader """
@@ -141,6 +143,29 @@ def money(bot, update, status=True): # status is false if called from inline but
     respi = respi + "*Total rewards:*\n" + str("{0:.5f}".format(sia_total_rewards)) + " SIA " + \
     "(*\u0024" + str("{0:.2f}".format(sia_total_rewards_usd)) + "*)\n"
 
+    # Litecoinpool
+    data = json.loads(json_url_reader(LTC_STATS_URL))
+    data = json.loads(data)
+    ltc_balance = float(data['user']['total_rewards'])
+    ltc_paid = float(data['user']['paid_rewards'])
+    ltc_expected_24h = float(data['user']['expected_24h_rewards'])
+    log_entry("LTC balance: " + str("{0:.5f}".format(ltc_balance)) + " LTC")
+    log_entry("LTC 24h expected rewards: " + str("{0:.5f}".format(ltc_expected_24h)) + " LTC")
+    log_entry("LTC paid: " + str("{0:.5f}".format(ltc_paid)) + " LTC")
+
+    ltc_balance_eur = ltc_balance*LTC_EUR
+    ltc_paid_eur = ltc_paid*LTC_EUR
+    ltc_total_rewards = ltc_balance+ltc_paid
+    ltc_total_rewards_eur = ltc_total_rewards*LTC_EUR
+
+    respi = respi + "\n*Litecoinpool:*" + "\n*Unpaid balance:*\n" + \
+    str("{0:.5f}".format(ltc_balance)) + " LTC " + \
+    "(*" + str("{0:.2f}".format(ltc_balance_eur)) + "\u20ac*)\n"
+    respi = respi + "*Paid rewards:*\n" + str("{0:.5f}".format(ltc_paid)) + " LTC " + \
+    "(*" + str("{0:.2f}".format(ltc_paid_eur)) + "\u20ac*)\n"
+    respi = respi + "*Total rewards:*\n" + str("{0:.5f}".format(ltc_total_rewards)) + " LTC " + \
+    "(*" + str("{0:.2f}".format(ltc_total_rewards_eur)) + "\u20ac*)\n"
+
     respi = respi + "\n🤑💰🤑"
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
@@ -174,6 +199,7 @@ def valuations(bot, update, status=True):
     """ Show coin valuations """
     respi = coindesk(bot, update, False)
     respi = respi + init_sia_price(bot, update, False)
+    respi = respi + init_ltc_price(bot, update, False)
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     return respi
@@ -211,6 +237,27 @@ def init_sia_price(bot=True, update=True, status=True):
     respi = "1 SIA = " + str(SIA_USD) + " USD"
     log_entry("Siamining values updated!")
     log_entry(respi)
+    if status:
+        update.message.reply_text(text=respi, parse_mode="Markdown")
+    else:
+        return respi
+
+
+def init_ltc_price(bot=True, update=True, status=True):
+    """ Get LTC coin price """
+    data = json.loads(json_url_reader(LTC_STATS_URL))
+    data = json.loads(data)
+    #pylint:disable=w0603
+    global LTC_USD
+    LTC_USD = data["market"]["ltc_usd"]
+    global LTC_EUR
+    LTC_EUR = data["market"]["ltc_eur"]
+    log_entry("Litecoinpool values updated!")
+    respi = "\n1 LTC = " + str(LTC_EUR) + " EUR"
+    log_entry("1 LTC = " + str(LTC_EUR) + " EUR")
+    respi = respi + "\n1 LTC = " + str(LTC_USD) + " USD"
+    log_entry("1 LTC = " + str(LTC_USD) + " USD")
+
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
@@ -562,7 +609,7 @@ def debug_print(telegram_token):
     log_entry("SiaMining api summary url: " + SIA_API_SUMMARY)
     log_entry("SiaMining api payouts url: " + SIA_API_PAYOUTS)
     log_entry("SiaMining workers url: " + SIA_API_WORKERS)
-    log_entry("Ltcminingpool stats url: " + LTC_STATS_URL)
+    log_entry("Litecoinpool stats url: " + LTC_STATS_URL)
     for miner in MINERS:
         log_entry("Adding miner to bot: " + miner)
     log_entry("Temperature limits: caution=" + TEMP_CAUTION_C + \
@@ -584,6 +631,7 @@ def main():
     # init currency values to global variables before starting polling
     coindesk(False, False, False)
     init_sia_price(False, False, False)
+    init_ltc_price(False, False, False)
 
     updater = Updater(telegram_bot_token)
 
