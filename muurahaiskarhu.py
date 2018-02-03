@@ -115,7 +115,7 @@ def money(bot, update, status=True): # status is false if called from inline but
     " BTC " + "(" + str("{0:.2f}".format(confirmed_reward_eur)) + " \u20ac)\n"
     #respi = respi + "*Estimated reward*:\n" + str(estimated_reward) + \
     #" BTC " + "(" + str("{0:.2f}".format(estimated_reward_eur)) + " \u20ac)\n"
-    respi = respi + "*Total rewards*:\n" + str("{0:.5f}".format(total_reward)) + \
+    respi = respi + "*Total rewards to payout*:\n" + str("{0:.5f}".format(total_reward)) + \
     " BTC " + "(*" + str("{0:.2f}".format(total_reward_eur)) + " \u20ac*)\n"
 
     # Siamining
@@ -131,16 +131,16 @@ def money(bot, update, status=True): # status is false if called from inline but
     sia_total_rewards = sia_balance+sia_paid
     sia_total_rewards_usd = sia_total_rewards*SIA_USD
 
-    log_entry("SIA unpaid balance: " + str("{0:.2f}".format(sia_balance_usd)) + " USD")
-    log_entry("SIA paid balance: " + str("{0:.2f}".format(sia_paid_usd)) + " USD")
-    log_entry("SIA total rewards: " + str("{0:.2f}".format(sia_total_rewards_usd)) + " USD")
+    log_entry("SIA unpaid rewards: " + str("{0:.2f}".format(sia_balance_usd)) + " USD")
+    log_entry("SIA paid rewards: " + str("{0:.2f}".format(sia_paid_usd)) + " USD")
+    log_entry("SIA all time rewards: " + str("{0:.2f}".format(sia_total_rewards_usd)) + " USD")
 
-    respi = respi + "\n*Siamining:*" + "\n*Unpaid balance:*\n" + \
+    respi = respi + "\n*Siamining:*" + "\n*Unpaid rewards:*\n" + \
     str("{0:.5f}".format(sia_balance)) + " SIA " + \
     "(*\u0024" + str("{0:.2f}".format(sia_balance_usd)) + "*)\n"
     respi = respi + "*Paid rewards:*\n" + str("{0:.5f}".format(sia_paid)) + " SIA " + \
     "(*\u0024" + str("{0:.2f}".format(sia_paid_usd)) + "*)\n"
-    respi = respi + "*Total rewards:*\n" + str("{0:.5f}".format(sia_total_rewards)) + " SIA " + \
+    respi = respi + "*All time rewards:*\n" + str("{0:.5f}".format(sia_total_rewards)) + " SIA " + \
     "(*\u0024" + str("{0:.2f}".format(sia_total_rewards_usd)) + "*)\n"
 
     # Litecoinpool
@@ -149,21 +149,22 @@ def money(bot, update, status=True): # status is false if called from inline but
     ltc_balance = float(data['user']['total_rewards'])
     ltc_paid = float(data['user']['paid_rewards'])
     ltc_expected_24h = float(data['user']['expected_24h_rewards'])
-    log_entry("LTC balance: " + str("{0:.5f}".format(ltc_balance)) + " LTC")
+    log_entry("LTC rewards: " + str("{0:.5f}".format(ltc_balance)) + " LTC")
     log_entry("LTC 24h expected rewards: " + str("{0:.5f}".format(ltc_expected_24h)) + " LTC")
-    log_entry("LTC paid: " + str("{0:.5f}".format(ltc_paid)) + " LTC")
+    log_entry("LTC paid rewards: " + str("{0:.5f}".format(ltc_paid)) + " LTC")
+    log_entry("LTC all time rewards: " + str("{0:.5f}".format(ltc_balance+ltc_paid)) + " LTC")
 
     ltc_balance_eur = ltc_balance*LTC_EUR
     ltc_paid_eur = ltc_paid*LTC_EUR
     ltc_total_rewards = ltc_balance+ltc_paid
     ltc_total_rewards_eur = ltc_total_rewards*LTC_EUR
 
-    respi = respi + "\n*Litecoinpool:*" + "\n*Unpaid balance:*\n" + \
+    respi = respi + "\n*Litecoinpool:*" + "\n*Unpaid rewards:*\n" + \
     str("{0:.5f}".format(ltc_balance)) + " LTC " + \
     "(*" + str("{0:.2f}".format(ltc_balance_eur)) + "\u20ac*)\n"
     respi = respi + "*Paid rewards:*\n" + str("{0:.5f}".format(ltc_paid)) + " LTC " + \
     "(*" + str("{0:.2f}".format(ltc_paid_eur)) + "\u20ac*)\n"
-    respi = respi + "*Total rewards:*\n" + str("{0:.5f}".format(ltc_total_rewards)) + " LTC " + \
+    respi = respi + "*All time rewards:*\n" + str("{0:.5f}".format(ltc_total_rewards)) + " LTC " + \
     "(*" + str("{0:.2f}".format(ltc_total_rewards_eur)) + "\u20ac*)\n"
 
     respi = respi + "\n🤑💰🤑"
@@ -171,17 +172,6 @@ def money(bot, update, status=True): # status is false if called from inline but
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
-
-def antstats(bot, update):
-    #pylint:disable=w0613
-    """ Ant Miner Stats """
-    data = json.loads(json_url_reader(SP_STATS_URL))
-    data = json.loads(data) # dunno why this needs to be done twice to work...
-    respi = 'Recent blocks:\n'
-    blocks = data["blocks"]
-    for keys in data:
-        log_entry(keys)
-    update.message.reply_text(text=respi, parse_mode="Markdown")
 
 def recentrounds(bot, update):
     """ Recent rounds menu command handler """
@@ -476,6 +466,7 @@ def get_temps_from_stats(miner, stats, respi=''):
     return respi, hightemp, highminer
 
 def evaluate_temps(respi, hightemp, highminer):
+    """ Evaluate temperatures collected from miners """
     if hightemp > int(TEMP_WARNING_C):
         respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >" \
         + TEMP_WARNING_C + "℃ 🌶️" # >105
@@ -643,7 +634,6 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('money', money))
     updater.dispatcher.add_handler(CommandHandler('rounds', recentrounds))
     updater.dispatcher.add_handler(CommandHandler('cd', valuations))
-    updater.dispatcher.add_handler(CommandHandler('stats', antstats))
     updater.dispatcher.add_handler(CommandHandler('temps', temps))
     updater.dispatcher.add_error_handler(error)
 
