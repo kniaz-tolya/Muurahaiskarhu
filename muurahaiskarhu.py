@@ -488,6 +488,7 @@ def get_status(miner, status=True):
     if miner == "AllMiners":
         response = ""
         respi = respi + 'Chip temps of miners:\n'
+        miner_count = 1
         for miner in MINERS:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
             sock.connect((miner, PORT))# connect to host <HOST> to port <PORT>
@@ -495,9 +496,10 @@ def get_status(miner, status=True):
             sock.send(dumped_data) # Send the dumped data to the server
             response = warren(sock)
             response = response.split(',')
-            respi = respi + '\n' + miner + ': '
+            respi = respi + '\n[' + str(miner_count) + ']: '
             respi, hightemp, highminer = get_temps_from_stats(miner, response, respi)
             # debug: log_entry(str(hightemp))
+            miner_count = miner_count + 1
             sock.close() # close the socket connection
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # initialise our socket
@@ -624,6 +626,7 @@ def main():
     init_sia_price(False, False, False)
     init_ltc_price(False, False, False)
 
+    log_entry("Murkku active and ready for your commands! :)")
     updater = Updater(telegram_bot_token)
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
