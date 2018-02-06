@@ -545,7 +545,8 @@ def evaluate_temps(respi, hightemp, highminer, miner_model):
         + TEMP_CAUTION_C + "℃ 🔥🔥🔥" # >115
     else:
         respi = respi+ "\n\n👌 All temps within boundaries!" # <=105
-    log_entry("Highest temperature: " + str(hightemp))
+    log_entry("Highest temperature: " + str(hightemp) + ", model: " + miner_model \
+            + ", IP: " + str(highminer))
     respi = respi + "\n🌡️ Highest temp: *" + str(hightemp) + "℃* \n" \
             + "🐜 Model: *" + str(miner_model) + "*, IP: (" + str(highminer) + ")"
     return respi
