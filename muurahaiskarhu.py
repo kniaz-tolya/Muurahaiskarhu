@@ -262,30 +262,30 @@ def status(bot, update):
                 [InlineKeyboardButton("🌡️ Temperatures", callback_data='Temperature'),
                  InlineKeyboardButton("💰 Coin Values", callback_data='Valuations')],
 
-                [InlineKeyboardButton("🐜 Ant 1", callback_data='Ant1'),
-                 InlineKeyboardButton("🐜 Ant 2", callback_data='Ant2'),
-                 InlineKeyboardButton("🐜 Ant 3", callback_data='Ant3'),
-                 InlineKeyboardButton("🐜 Ant 4", callback_data='Ant4')],
+                [InlineKeyboardButton("🐜 1", callback_data='Ant1'),
+                 InlineKeyboardButton("🐜 2", callback_data='Ant2'),
+                 InlineKeyboardButton("🐜 3", callback_data='Ant3'),
+                 InlineKeyboardButton("🐜 4", callback_data='Ant4')],
 
-                [InlineKeyboardButton("🐜 Ant 5", callback_data='Ant5'),
-                 InlineKeyboardButton("🐜 Ant 6", callback_data='Ant6'),
-                 InlineKeyboardButton("🐜 Ant 7", callback_data='Ant7'),
-                 InlineKeyboardButton("🐜 Ant 8", callback_data='Ant8')],
+                [InlineKeyboardButton("🐜 5", callback_data='Ant5'),
+                 InlineKeyboardButton("🐜 6", callback_data='Ant6'),
+                 InlineKeyboardButton("🐜 7", callback_data='Ant7'),
+                 InlineKeyboardButton("🐜 8", callback_data='Ant8')],
 
-                [InlineKeyboardButton("🐜 Ant 9", callback_data='Ant9'),
-                 InlineKeyboardButton("🐜 Ant 10", callback_data='Ant10'),
-                 InlineKeyboardButton("🐜 Ant 11", callback_data='Ant11'),
-                 InlineKeyboardButton("🐜 Ant 12", callback_data='Ant12')],
+                [InlineKeyboardButton("🐜 9", callback_data='Ant9'),
+                 InlineKeyboardButton("🐜 10", callback_data='Ant10'),
+                 InlineKeyboardButton("🐜 11", callback_data='Ant11'),
+                 InlineKeyboardButton("🐜 12", callback_data='Ant12')],
 
-                [InlineKeyboardButton("🐜 Ant 13", callback_data='Ant13'),
-                 InlineKeyboardButton("🐜 Ant 14", callback_data='Ant14'),
-                 InlineKeyboardButton("🐜 Ant 15", callback_data='Ant15'),
-                 InlineKeyboardButton("🐜 Ant 16", callback_data='Ant16')],
+                [InlineKeyboardButton("🐜 13", callback_data='Ant13'),
+                 InlineKeyboardButton("🐜 14", callback_data='Ant14'),
+                 InlineKeyboardButton("🐜 15", callback_data='Ant15'),
+                 InlineKeyboardButton("🐜 16", callback_data='Ant16')],
 
-                [InlineKeyboardButton("🐜 Ant 17", callback_data='Ant17'),
-                 InlineKeyboardButton("🐜 Ant 18", callback_data='Ant18'),
-                 InlineKeyboardButton("🐜 Ant 19", callback_data='Ant19'),
-                 InlineKeyboardButton("🐜 Ant 20", callback_data='Ant20')]               ]
+                [InlineKeyboardButton("🐜 17", callback_data='Ant17'),
+                 InlineKeyboardButton("🐜 18", callback_data='Ant18'),
+                 InlineKeyboardButton("🐜 19", callback_data='Ant19'),
+                 InlineKeyboardButton("🐜 20", callback_data='Ant20')]               ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -387,6 +387,26 @@ def button(bot, update):
         choice = MINERS[14]
         log_entry("--- Selected menu item: " + choice)
         respi = get_status(MINERS[14])
+    elif query.data == 'Ant16':
+        choice = MINERS[15]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[15])
+    elif query.data == 'Ant17':
+        choice = MINERS[16]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[16])
+    elif query.data == 'Ant18':
+        choice = MINERS[17]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[17])
+    elif query.data == 'Ant19':
+        choice = MINERS[18]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[18])
+    elif query.data == 'Ant15':
+        choice = MINERS[14]
+        log_entry("--- Selected menu item: " + choice)
+        respi = get_status(MINERS[19])
     elif query.data == 'AllMiners':
         choice = 'All Miner Temps'
         log_entry("--- Selected menu item: " + choice)
@@ -421,7 +441,7 @@ def temps(bot, update, status=True):
     else:
         return respi
 
-def get_temps_from_stats(hightemp, highminer, miner, stats, respi=''):
+def get_temps_from_stats(miner, hightemp='', highminer='', stats='', respi=''):
     """ Evaluate temperatures from miner stats output and add to response """
     miner_model = "Unknown"
     log_entry("Connecting to socket on miner: " + str(miner))
@@ -513,9 +533,9 @@ def get_temps_from_stats(hightemp, highminer, miner, stats, respi=''):
                 if int(key[1]) > hightemp:
                     hightemp = int(key[1])
                     highminer = miner
-    return respi, hightemp, highminer
+    return respi, hightemp, highminer, miner_model
 
-def evaluate_temps(respi, hightemp, highminer):
+def evaluate_temps(respi, hightemp, highminer, miner_model):
     """ Evaluate temperatures collected from miners """
     if hightemp > int(TEMP_WARNING_C):
         respi = respi + "\n\n🌶️ *WARNING*: Reaching *high* temps! >" \
@@ -526,7 +546,8 @@ def evaluate_temps(respi, hightemp, highminer):
     else:
         respi = respi+ "\n\n👌 All temps within boundaries!" # <=105
     log_entry("Highest temperature: " + str(hightemp))
-    respi = respi + "\n🌡️ Highest temp: *" + str(hightemp) + "℃* (" + str(highminer) + ")"
+    respi = respi + "\n🌡️ Highest temp: *" + str(hightemp) + "℃* \n" \
+            + "🐜 Model: *" + str(miner_model) + "*, IP: (" + str(highminer) + ")"
     return respi
 
 def get_status(miner, status=True):
@@ -547,7 +568,7 @@ def get_status(miner, status=True):
             response = warren(sock)
             response = response.split(',')
             respi = respi + '\n[' + str(miner_count) + ']: '
-            respi, hightemp, highminer = get_temps_from_stats(hightemp, highminer, miner, response, respi)
+            respi, hightemp, highminer, miner_model = get_temps_from_stats(miner, hightemp, highminer, response, respi)
             # debug: log_entry(str(hightemp))
             miner_count = miner_count + 1
             sock.close() # close the socket connection
@@ -559,10 +580,10 @@ def get_status(miner, status=True):
         response = warren(sock)
         response = response.split(',')
         respi = miner + ': '
-        respi, hightemp, highminer = get_temps_from_stats(miner, response, respi)
+        respi, hightemp, highminer, miner_model = get_temps_from_stats(miner, hightemp, highminer, response, respi)
         sock.close() # close the socket connection
 
-    respi = evaluate_temps(respi, hightemp, highminer)
+    respi = evaluate_temps(respi, hightemp, highminer, miner_model)
 
     return respi
 
