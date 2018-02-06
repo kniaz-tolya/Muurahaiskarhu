@@ -115,7 +115,7 @@ def money(bot, update, status=True): # status is false if called from inline but
     " BTC " + "(" + str("{0:.2f}".format(confirmed_reward_eur)) + " \u20ac)\n"
     #respi = respi + "*Estimated reward*:\n" + str(estimated_reward) + \
     #" BTC " + "(" + str("{0:.2f}".format(estimated_reward_eur)) + " \u20ac)\n"
-    respi = respi + "*Total rewards to payout*:\n" + str("{0:.5f}".format(total_reward)) + \
+    respi = respi + "*Total rewards for payout*:\n" + str("{0:.5f}".format(total_reward)) + \
     " BTC " + "(*" + str("{0:.2f}".format(total_reward_eur)) + " \u20ac*)\n"
 
     # Siamining
@@ -280,7 +280,12 @@ def status(bot, update):
                 [InlineKeyboardButton("🐜 Ant 13", callback_data='Ant13'),
                  InlineKeyboardButton("🐜 Ant 14", callback_data='Ant14'),
                  InlineKeyboardButton("🐜 Ant 15", callback_data='Ant15'),
-                 InlineKeyboardButton("🐜 Ant 16", callback_data='Ant16')]]
+                 InlineKeyboardButton("🐜 Ant 16", callback_data='Ant16')],
+
+                [InlineKeyboardButton("🐜 Ant 17", callback_data='Ant17'),
+                 InlineKeyboardButton("🐜 Ant 18", callback_data='Ant18'),
+                 InlineKeyboardButton("🐜 Ant 19", callback_data='Ant19'),
+                 InlineKeyboardButton("🐜 Ant 20", callback_data='Ant20')]               ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -416,15 +421,13 @@ def temps(bot, update, status=True):
     else:
         return respi
 
-def get_temps_from_stats(miner, stats, respi=''):
+def get_temps_from_stats(hightemp, highminer, miner, stats, respi=''):
     """ Evaluate temperatures from miner stats output and add to response """
-    hightemp = 0
-    highminer = ''
     miner_model = "Unknown"
     log_entry("Connecting to socket on miner: " + str(miner))
     for key in stats:
         key = key.split('=')
-        # Detect Antminer type (A3/S9 supported currently)
+        # Detect Antminer type
         if key[0] == 'Type':
             miner_model = str(key[1]).split('|')[0]
             log_entry("Miner model: " + miner_model)
@@ -446,7 +449,7 @@ def get_temps_from_stats(miner, stats, respi=''):
                 if int(key[1]) > hightemp:
                     hightemp = int(key[1])
                     highminer = miner
-        # Antminer A3
+        # Antminer A3/L3+
         if miner_model == "Antminer A3" or miner_model == "Antminer L3+":
             if key[0] == 'temp2_1':
                 respi = respi + "*" + key[1]
@@ -459,6 +462,53 @@ def get_temps_from_stats(miner, stats, respi=''):
                     hightemp = int(key[1])
                     highminer = miner
             elif key[0] == 'temp2_3':
+                respi = respi + "/" + key[1] + "*℃"
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+        # Antminer T9+
+        if miner_model == "Antminer T9+":
+            if key[0] == 'temp2_2':
+                respi = respi + "*" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_3':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_4':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_9':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_10':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_11':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_12':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_13':
+                respi = respi + "/" + key[1]
+                if int(key[1]) > hightemp:
+                    hightemp = int(key[1])
+                    highminer = miner
+            elif key[0] == 'temp2_14':
                 respi = respi + "/" + key[1] + "*℃"
                 if int(key[1]) > hightemp:
                     hightemp = int(key[1])
@@ -497,7 +547,7 @@ def get_status(miner, status=True):
             response = warren(sock)
             response = response.split(',')
             respi = respi + '\n[' + str(miner_count) + ']: '
-            respi, hightemp, highminer = get_temps_from_stats(miner, response, respi)
+            respi, hightemp, highminer = get_temps_from_stats(hightemp, highminer, miner, response, respi)
             # debug: log_entry(str(hightemp))
             miner_count = miner_count + 1
             sock.close() # close the socket connection
