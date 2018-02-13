@@ -146,17 +146,17 @@ def money(bot, update, status=True): # status is false if called from inline but
     # Litecoinpool
     data = json.loads(json_url_reader(LTC_STATS_URL))
     data = json.loads(data)
-    ltc_balance = float(data['user']['total_rewards'])
+    ltc_balance = float(data['user']['unpaid_rewards'])
     ltc_paid = float(data['user']['paid_rewards'])
     ltc_expected_24h = float(data['user']['expected_24h_rewards'])
+    ltc_total_rewards = float(data['user']['total_rewards'])
     log_entry("LTC rewards: " + str("{0:.5f}".format(ltc_balance)) + " LTC")
     log_entry("LTC 24h expected rewards: " + str("{0:.5f}".format(ltc_expected_24h)) + " LTC")
     log_entry("LTC paid rewards: " + str("{0:.5f}".format(ltc_paid)) + " LTC")
-    log_entry("LTC all time rewards: " + str("{0:.5f}".format(ltc_balance+ltc_paid)) + " LTC")
+    log_entry("LTC all time rewards: " + str("{0:.5f}".format(ltc_total_rewards)) + " LTC")
 
     ltc_balance_eur = ltc_balance*LTC_EUR
     ltc_paid_eur = ltc_paid*LTC_EUR
-    ltc_total_rewards = ltc_balance+ltc_paid
     ltc_total_rewards_eur = ltc_total_rewards*LTC_EUR
 
     respi = respi + "\n*Litecoinpool:*" + "\n*Unpaid rewards:*\n" + \
