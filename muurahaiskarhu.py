@@ -46,6 +46,12 @@ SIA_API_PAYOUTS = ""
 SIA_API_WORKERS = ""
 SIA_API_ADDRESS = ""
 
+# spacepool
+ETN_STATS_URL = ""
+ETN_PRICE = ""
+ETN_ADDRESS = ""
+ETN_ADDRESS = ""
+
 # Litecoinpool.org
 
 LTC_API_KEY = ""
@@ -67,6 +73,7 @@ CD_USD = ""
 SIA_USD = ""
 LTC_EUR = ""
 LTC_USD = ""
+ETN_USD = ""
 
 def warren(sock):
     """ Warren Buffet... I mean Warren Socket reader """
@@ -190,6 +197,7 @@ def valuations(bot, update, status=True):
     respi = coindesk(bot, update, False)
     respi = respi + init_sia_price(bot, update, False)
     respi = respi + init_ltc_price(bot, update, False)
+    respi = respi + "\n" + init_etn_price(bot, update, False)
     if status:
         update.message.reply_text(text=respi, parse_mode="Markdown")
     return respi
@@ -231,6 +239,22 @@ def init_sia_price(bot=True, update=True, status=True):
         update.message.reply_text(text=respi, parse_mode="Markdown")
     else:
         return respi
+
+def init_etn_price(bot=True, update=True, status=True):
+    """ Get ETN coin price """
+    data = json.loads(json_url_reader(ETN_PRICE))
+    data = json.loads(data)
+    #pylint:disable=w0603
+    global ETN_USD
+    ETN_USD = data[0]["price_usd"]
+    respi = "1 ETN = " + str(ETN_USD) + " USD"
+    log_entry("Electroneum values updated!")
+    log_entry(respi)
+    if status:
+        update.message.reply_text(text=respi, parse_mode="Markdown")
+    else:
+        return respi
+
 
 
 def init_ltc_price(bot=True, update=True, status=True):
@@ -647,6 +671,14 @@ def init_global_vars(config):
     SIA_API_PAYOUTS = SIA_API_ADDRESS + SIA_ADDRESS + "/payouts"
     global SIA_API_WORKERS
     SIA_API_WORKERS = SIA_API_ADDRESS + SIA_ADDRESS + "/workers"
+    global ETN_API_URL
+    ETN_API_URL = config['spacepool']['base_url']
+    global ETN_ADDRESS
+    ETN_ADDRESS = config['spacepool']['address']
+    global ETN_STATS_URL
+    ETN_STATS_URL = ETN_API_URL + config['spacepool']['stats_url'] + ETN_ADDRESS
+    global ETN_PRICE
+    ETN_PRICE = ETN_API_URL + config['spacepool']['price']
     global MINERS
     MINERS = config['mining']['miners']
     global TEMP_CAUTION_C
@@ -675,6 +707,8 @@ def debug_print(telegram_token):
     log_entry("SiaMining api payouts url: " + SIA_API_PAYOUTS)
     log_entry("SiaMining workers url: " + SIA_API_WORKERS)
     log_entry("Litecoinpool stats url: " + LTC_STATS_URL)
+    log_entry("Spacepool stats url: " + ETN_STATS_URL)
+    log_entry("Spacepool price url: " + ETN_PRICE)
     for miner in MINERS:
         log_entry("Adding miner to bot: " + miner)
     log_entry("Temperature limits: caution=" + TEMP_CAUTION_C + \
@@ -697,6 +731,7 @@ def main():
     coindesk(False, False, False)
     init_sia_price(False, False, False)
     init_ltc_price(False, False, False)
+    init_etn_price(False, False, False)
 
     log_entry("Murkku active and ready for your commands! :)")
     updater = Updater(telegram_bot_token)
