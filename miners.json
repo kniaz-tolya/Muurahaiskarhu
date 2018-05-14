@@ -1,0 +1,343 @@
+[{
+		"name": "S9_135_001",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.11"
+	},
+	{
+		"name": "S9_135_002",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.12"
+	},
+	{
+		"name": "S9_140_003",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.13"
+	},
+	{
+		"name": "S9_140_004",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.14"
+	},
+	{
+		"name": "S9_140_005",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.15"
+	},
+	{
+		"name": "S9_140_006",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.16"
+	},
+	{
+		"name": "S9_140_007",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.17"
+	},
+	{
+		"name": "S9_140_008",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.18"
+	},
+	{
+		"name": "S9_140_009",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.19"
+	},
+	{
+		"name": "S9_140_010",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.20"
+	},
+	{
+		"name": "S9_140_011",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.21"
+	},
+	{
+		"name": "S9_140_012",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "14",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.22"
+	},
+	{
+		"name": "T9_105_016",
+		"manufacturer": "Antminer",
+		"type": "T9",
+		"hashrate": "10.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.26"
+	},
+	{
+		"name": "T9_105_017",
+		"manufacturer": "Antminer",
+		"type": "T9",
+		"hashrate": "10.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.27"
+	},
+	{
+		"name": "T9_105_018",
+		"manufacturer": "Antminer",
+		"type": "T9",
+		"hashrate": "10.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.28"
+	},
+	{
+		"name": "T9_105_019",
+		"manufacturer": "Antminer",
+		"type": "T9",
+		"hashrate": "10.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.29"
+	},
+	{
+		"name": "S9_135_020",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.30"
+	},
+	{
+		"name": "S9_135_021",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.31"
+	},
+	{
+		"name": "S9_135_022",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.32"
+	},
+	{
+		"name": "S9_135_023",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.33"
+	},
+	{
+		"name": "S9_135_024",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.34"
+	},
+	{
+		"name": "S9_135_026",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.36"
+	},
+	{
+		"name": "S9_135_027",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.37"
+	},
+	{
+		"name": "S9_135_028",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.38"
+	},
+	{
+		"name": "S9_135_029",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.39"
+	},
+	{
+		"name": "S9_135_030",
+		"manufacturer": "Antminer",
+		"type": "S9",
+		"hashrate": "13.5",
+		"hashunit": "TH/s",
+		"coin": "BTC",
+		"asic": "sha-256",
+		"ip": "192.168.2.40"
+	},
+	{
+		"name": "A3_815_013",
+		"manufacturer": "Antminer",
+		"type": "A3",
+		"hashrate": "815",
+		"hashunit": "GH/s",
+		"coin": "SIA",
+		"asic": "Blake(2b)",
+		"ip": "192.168.2.23"
+	},
+	{
+		"name": "A3_815_031",
+		"manufacturer": "Antminer",
+		"type": "A3",
+		"hashrate": "815",
+		"hashunit": "GH/s",
+		"coin": "SIA",
+		"asic": "Blake(2b)",
+		"ip": "192.168.2.41"
+	},
+	{
+		"name": "A3_815_032",
+		"manufacturer": "Antminer",
+		"type": "A3",
+		"hashrate": "815",
+		"hashunit": "GH/s",
+		"coin": "SIA",
+		"asic": "Blake(2b)",
+		"ip": "192.168.2.42"
+	},
+	{
+		"name": "L3_504_14",
+		"manufacturer": "Antminer",
+		"type": "L3+",
+		"hashrate": "504",
+		"hashunit": "MH/s",
+		"coin": "LTC",
+		"asic": "Scrypt",
+		"ip": "192.168.2.24"
+	},
+	{
+		"name": "L3_504_15",
+		"manufacturer": "Antminer",
+		"type": "L3+",
+		"hashrate": "504",
+		"hashunit": "MH/s",
+		"coin": "LTC",
+		"asic": "Scrypt",
+		"ip": "192.168.2.25"
+	},
+	{
+		"name": "L3_504_25",
+		"manufacturer": "Antminer",
+		"type": "L3+",
+		"hashrate": "504",
+		"hashunit": "MH/s",
+		"coin": "LTC",
+		"asic": "Scrypt",
+		"ip": "192.168.2.35"
+	},
+	{
+		"name": "X3_220_xx",
+		"manufacturer": "Antminer",
+		"type": "X3",
+		"hashrate": "220",
+		"hashunit": "kH/s",
+		"coin": "HAX",
+		"asic": "CryptoNight",
+		"ip": "192.168.2.50",
+		"watts": "550"
+	},
+	{
+		"name": "X3_220_xy",
+		"manufacturer": "Antminer",
+		"type": "X3",
+		"hashrate": "220",
+		"hashunit": "kH/s",
+		"coin": "HAX",
+		"asic": "CryptoNight",
+		"ip": "192.168.2.51",
+		"watts": "550"
+	}
+]
