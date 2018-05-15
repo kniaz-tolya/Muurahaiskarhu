@@ -5,28 +5,22 @@ declare -a miners=(192.168.2.11 192.168.2.12 192.168.2.13 192.168.2.14 192.168.2
 j=1
 for i in "${miners[@]}"
 do
-   echo "Querying: $j $i"
+   echo "Querying Miner #$j, IP: $i"
    temp1=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $50'} | awk -F'=' {'print $2'})
    temp2=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $51'} | awk -F'=' {'print $2'})
    temp3=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $52'} | awk -F'=' {'print $2'})
-   if [ -n "$temp1" ]; then
-	    echo "Temp1: $temp1"
-   else
+   if [ -z "$temp1" ]; then
      temp1="-1"
-	    echo "Temp1: $temp1"
    fi
-   if [ -n "$temp2" ]; then
-      echo "Temp2: $temp2"
-    else
-      temp2="-1"
-      echo "Temp2: $temp2"
-  fi
-  if [ -n "$temp3" ]; then
-    echo "Temp3: $temp3"
-  else
-    temp3="-1"
-    echo "Temp3: $temp3"
-  fi
+   if [ -z "$temp2" ]; then
+     temp2="-1"
+   fi
+   if [ -z "$temp3" ]; then
+     temp3="-1"
+   fi
+    echo "Chip Temp 1: $temp1"
+    echo "Chip Temp 2: $temp2"
+    echo "Chip Temp 3: $temp3"
 #   curl -i -XPOST 'http://localhost:8086/write?db=minertemp' -u admin:KalkkiPetteri1803influx --data-binary 'temperature,miner='$j' chip1='$temp1',chip2='$temp2',chip3='$temp3
    let j=j+1
 done
