@@ -319,23 +319,23 @@
 		"ip": "192.168.2.35"
 	},
 	{
-		"name": "X3_220_xx",
+		"name": "X3_220_33",
 		"manufacturer": "Antminer",
 		"type": "X3",
 		"hashrate": "220",
 		"hashunit": "kH/s",
-		"coin": "HAX",
+		"coin": "ETN",
 		"asic": "CryptoNight",
 		"ip": "192.168.2.50",
 		"watts": "550"
 	},
 	{
-		"name": "X3_220_xy",
+		"name": "X3_220_34",
 		"manufacturer": "Antminer",
 		"type": "X3",
 		"hashrate": "220",
 		"hashunit": "kH/s",
-		"coin": "HAX",
+		"coin": "ETN",
 		"asic": "CryptoNight",
 		"ip": "192.168.2.51",
 		"watts": "550"
