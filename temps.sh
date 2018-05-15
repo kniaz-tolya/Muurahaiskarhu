@@ -12,20 +12,21 @@ do
    if [ -n "$temp1" ]; then
 	    echo "Temp1: $temp1"
    else
-	    echo "Temp1: N/A"
+     temp1="-1"
+	    echo "Temp1: $temp1"
    fi
    if [ -n "$temp2" ]; then
       echo "Temp2: $temp2"
     else
-      echo "Temp2: N/A"
+      temp2="-1"
+      echo "Temp2: $temp2"
   fi
   if [ -n "$temp3" ]; then
     echo "Temp3: $temp3"
   else
-    echo "Temp3: N/A"
+    temp3="-1"
+    echo "Temp3: $temp3"
   fi
-
-   echo "Temp1: $temp1, Temp2:  $temp2, Temp3:  $temp3"
 #   curl -i -XPOST 'http://localhost:8086/write?db=minertemp' -u admin:KalkkiPetteri1803influx --data-binary 'temperature,miner='$j' chip1='$temp1',chip2='$temp2',chip3='$temp3
    let j=j+1
 done
