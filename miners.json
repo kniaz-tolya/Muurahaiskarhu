@@ -276,7 +276,7 @@
 		"hashunit": "GH/s",
 		"coin": "SIA",
 		"asic": "Blake(2b)",
-		"ip": "192.168.2.41"
+		"ip": "192.168.1.238"
 	},
 	{
 		"name": "A3_815_032",
@@ -326,7 +326,7 @@
 		"hashunit": "kH/s",
 		"coin": "ETN",
 		"asic": "CryptoNight",
-		"ip": "192.168.2.50",
+		"ip": "192.168.2.43",
 		"watts": "550"
 	},
 	{
@@ -337,7 +337,7 @@
 		"hashunit": "kH/s",
 		"coin": "ETN",
 		"asic": "CryptoNight",
-		"ip": "192.168.2.51",
+		"ip": "192.168.2.44",
 		"watts": "550"
 	}
 ]

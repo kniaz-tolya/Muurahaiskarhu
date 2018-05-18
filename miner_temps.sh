@@ -19,24 +19,17 @@ do
 
    echo "Querying Miner #$j (${miner_name[$j-1]}), Type: ${miner_type[$j-1]}, IP: $i"
 
-   if [ ${miner_type[$j-1]} == "S9" ];
-   then
+   if [ ${miner_type[$j-1]} == "S9" ];then
       echo "Getting chip temps from S9..."
       temp1=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $50'} | awk -F'=' {'print $2'})
       temp2=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $51'} | awk -F'=' {'print $2'})
       temp3=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $52'} | awk -F'=' {'print $2'})
-   fi
-
-   if [ ${miner_type[$j-1]} == "X3" ];
-   then
+   elif [ ${miner_type[$j-1]} == "X3" ];then
       echo "Getting chip temps from X3..."
       temp1=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $24'} | awk -F'=' {'print $2'})
       temp2=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $25'} | awk -F'=' {'print $2'})
       temp3=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $26'} | awk -F'=' {'print $2'})
-   fi
-
-   if [ ${miner_type[$j-1]} == "T9" ];
-   then
+   elif [ ${miner_type[$j-1]} == "T9" ];then
       echo "Getting chip temps from T9..."
       temp1=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $53'} | awk -F'=' {'print $2'})
       temp2=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $54'} | awk -F'=' {'print $2'})
@@ -44,23 +37,19 @@ do
       temp4=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $56'} | awk -F'=' {'print $2'})
       temp5=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $57'} | awk -F'=' {'print $2'})
       temp6=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $58'} | awk -F'=' {'print $2'})
-   fi
-
-   if [ ${miner_type[$j-1]} == "A3" ];
-   then
+   elif [ ${miner_type[$j-1]} == "A3" ];then
       echo "Getting chip temps from A3..."
       temp1=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $27'} | awk -F'=' {'print $2'})
       temp2=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $28'} | awk -F'=' {'print $2'})
       temp3=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $29'} | awk -F'=' {'print $2'})
-   fi
-
-   if [ ${miner_type[$j-1]} == "L3+" ];
-   then
+   elif [ ${miner_type[$j-1]} == "L3+" ];then
       echo "Getting chip temps from L3+..."
       temp1=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $28'} | awk -F'=' {'print $2'})
       temp2=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $29'} | awk -F'=' {'print $2'})
       temp3=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $30'} | awk -F'=' {'print $2'})
       temp4=$(echo 'stats|0' | nc $i 4028 | awk -F',' {'print $31'} | awk -F'=' {'print $2'})
+   else
+      echo "Fuck me"
    fi
 
    if [ -z "$temp1" ]; then
