@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # read miner info to arrays  from json file - requires jq to work
-IFS=' ' read -r -a miner_ip <<< $(cat miners.json| jq -r 'map(.ip) | join(" ")')
-IFS=' ' read -r -a miner_name <<< $(cat miners.json| jq -r 'map(.name) | join(" ")')
-IFS=' ' read -r -a miner_type <<< $(cat miners.json| jq -r 'map(.type) | join(" ")')
+IFS=' ' read -r -a miner_ip <<< $(cat /home/pi/dev/Muurahaiskarhu/miners.json| jq -r 'map(.ip) | join(" ")')
+IFS=' ' read -r -a miner_name <<< $(cat /home/pi/dev/Muurahaiskarhu/miners.json| jq -r 'map(.name) | join(" ")')
+IFS=' ' read -r -a miner_type <<< $(cat /home/pi/dev/Muurahaiskarhu/miners.json| jq -r 'map(.type) | join(" ")')
 
 # iterate through miners array
 j=1
