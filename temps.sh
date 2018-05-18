@@ -21,6 +21,6 @@ do
     echo "Chip Temp 1: $temp1"
     echo "Chip Temp 2: $temp2"
     echo "Chip Temp 3: $temp3"
-#   curl -i -XPOST 'http://localhost:8086/write?db=minertemp' -u admin:KalkkiPetteri1803influx --data-binary 'temperature,miner='$j' chip1='$temp1',chip2='$temp2',chip3='$temp3
+   curl -i -XPOST 'http://localhost:8086/write?db=minertemp' -u admin:KalkkiPetteri1803influx --data-binary 'temperature,miner='$j' chip1='$temp1',chip2='$temp2',chip3='$temp3
    let j=j+1
 done
